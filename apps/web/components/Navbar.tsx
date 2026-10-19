@@ -8,7 +8,7 @@ import { store } from '@/lib/store';
 
 export function Navbar({ currentRole, onRoleSwitch }: { currentRole: string; onRoleSwitch?: (role: string) => void }) {
   const router = useRouter();
-  const currentUser = store.currentUser;
+  const currentUser = store.currentUser || { full_name: 'Campus Administrator', roles: ['admin'] };
 
   const handleSignOut = () => {
     store.logout();
@@ -47,10 +47,10 @@ export function Navbar({ currentRole, onRoleSwitch }: { currentRole: string; onR
           {/* User Profile Pill */}
           <div className="flex items-center gap-3 pl-2 border-l border-white/10">
             <div className="h-9 w-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold text-xs">
-              {currentUser.full_name ? currentUser.full_name.charAt(0) : 'U'}
+              {currentUser?.full_name ? currentUser.full_name.charAt(0) : 'A'}
             </div>
             <div className="text-left hidden md:block">
-              <p className="text-xs font-bold text-white leading-none">{currentUser.full_name}</p>
+              <p className="text-xs font-bold text-white leading-none">{currentUser?.full_name || 'Administrator'}</p>
               <div className="mt-1 flex items-center gap-1.5">
                 <span className={`text-[10px] px-1.5 py-0.2 rounded border font-extrabold uppercase tracking-wider ${badgeStyle.bg} ${badgeStyle.text} ${badgeStyle.border}`}>
                   {currentRole}

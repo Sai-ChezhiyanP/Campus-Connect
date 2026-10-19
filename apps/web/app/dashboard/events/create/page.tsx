@@ -91,8 +91,8 @@ export default function CreateEventPage() {
 
       setFormData((prev) => ({
         ...prev,
-        contact_name: user.full_name,
-        contact_email: user.college_email,
+        contact_name: user?.full_name || '',
+        contact_email: user?.college_email || '',
         organizing_type: !adminRole && coordRole ? 'club' : prev.organizing_type,
         club_id: !adminRole && coordRole ? clubId || '' : prev.club_id || store.clubs[0]?.id || '',
       }));

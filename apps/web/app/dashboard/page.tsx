@@ -52,7 +52,7 @@ export default function DashboardOverviewPage() {
             <GraduationCap className="h-4 w-4" /> SRMIST Ramapuram Centralized Management Hub
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white">
-            Welcome, {user.full_name}
+            Welcome, {user?.full_name || 'Campus Administrator'}
           </h1>
           <p className="mt-2 text-slate-300 text-sm leading-relaxed">
             Monitor real-time student engagement, review club event submissions, broadcast authorized departmental notices, and manage campus opportunities.

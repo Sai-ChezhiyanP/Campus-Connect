@@ -549,6 +549,7 @@ class CampusConnectStore {
   }
 
   getCurrentRole(): AppRole {
+    if (!this.currentUser) return 'admin';
     if (this.currentUser.roles?.includes('admin')) return 'admin';
     if (this.currentUser.roles?.includes('faculty')) return 'faculty';
     if (this.currentUser.roles?.includes('coordinator')) return 'coordinator';
