@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Image,
   Modal,
   Platform,
@@ -10,6 +11,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const POSTER_WIDTH = Math.min(SCREEN_WIDTH - 24, 480);
+const POSTER_HEIGHT = Math.round(POSTER_WIDTH * (297 / 210)); // Exact A4 Portrait ratio (1:1.414)
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -419,20 +424,24 @@ export default function EventDetailScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Fully visible A4 portrait poster */}
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => setShowPosterModal(false)}
-              style={styles.fullPosterImageContainer}
+            {/* Fully visible A4 portrait poster in Fit Mode (Not contain, not fill) */}
+            <ScrollView
+              style={styles.fullPosterScrollView}
+              contentContainerStyle={styles.fullPosterScrollContent}
+              maximumZoomScale={3}
+              minimumZoomScale={1}
+              showsVerticalScrollIndicator={false}
+              bounces={true}
             >
-              <Image
-                source={{
-                  uri: event.poster_url || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000',
-                }}
-                style={styles.fullPosterImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+              <View style={styles.fullPosterFrame}>
+                <Image
+                  source={{
+                    uri: event.poster_url || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200',
+                  }}
+                  style={styles.fullPosterFitImage}
+                />
+              </View>
+            </ScrollView>
 
             {/* Bottom Dismiss Button */}
             <TouchableOpacity
@@ -1023,17 +1032,33 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.18)',
   },
-  fullPosterImageContainer: {
+  fullPosterScrollView: {
     flex: 1,
+    width: '100%',
+  },
+  fullPosterScrollContent: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
+    minHeight: '100%',
   },
-  fullPosterImage: {
+  fullPosterFrame: {
+    width: POSTER_WIDTH,
+    height: POSTER_HEIGHT,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#0F172A',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 18,
+    elevation: 10,
+  },
+  fullPosterFitImage: {
     width: '100%',
     height: '100%',
-    aspectRatio: 210 / 297,
-    borderRadius: 16,
   },
   fullPosterDismissBtn: {
     alignSelf: 'center',
