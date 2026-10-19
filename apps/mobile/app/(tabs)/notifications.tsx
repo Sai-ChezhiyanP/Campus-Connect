@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   AlertTriangle,
+  Award,
   Bell,
   Calendar,
   CheckCheck,
@@ -21,6 +22,7 @@ import {
   Megaphone,
   ShieldAlert,
   Sparkles,
+  Users,
 } from 'lucide-react-native';
 import { Announcement } from '@campus-connect/types';
 import { mobileStore } from '../../services/store';
@@ -28,7 +30,7 @@ import { GlassBackground } from '../../components/GlassBackground';
 
 export default function NotificationsScreen() {
   const [announcements, setAnnouncements] = useState<Announcement[]>(mobileStore.announcements);
-  const [filter, setFilter] = useState<'all' | 'bulletins' | 'academic' | 'registration'>('all');
+  const [filter, setFilter] = useState<'all' | 'bulletins' | 'coordinator' | 'academic' | 'registration'>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
@@ -60,7 +62,20 @@ export default function NotificationsScreen() {
 
   const filteredBulletins = announcements.filter((a) => {
     if (filter === 'all') return true;
-    if (filter === 'bulletins') return true;
+    if (filter === 'coordinator') {
+      return (
+        a.category.toLowerCase().includes('club') ||
+        a.category.toLowerCase().includes('coordinator') ||
+        a.author_profile?.roles?.includes('coordinator')
+      );
+    }
+    if (filter === 'bulletins') {
+      return (
+        !a.category.toLowerCase().includes('club') &&
+        !a.category.toLowerCase().includes('coordinator') &&
+        !a.author_profile?.roles?.includes('coordinator')
+      );
+    }
     if (filter === 'academic') return a.category.toLowerCase().includes('academic') || a.category.toLowerCase().includes('exam');
     if (filter === 'registration') return a.category.toLowerCase().includes('registration') || a.category.toLowerCase().includes('opportunit');
     return true;
@@ -99,7 +114,8 @@ export default function NotificationsScreen() {
         <View style={styles.filterRow}>
           {[
             { id: 'all', label: 'All Alerts' },
-            { id: 'bulletins', label: 'Bulletins' },
+            { id: 'coordinator', label: 'Club Notices' },
+            { id: 'bulletins', label: 'Faculty' },
             { id: 'academic', label: 'Academic' },
             { id: 'registration', label: 'Opportunities' },
           ].map((item) => (
@@ -129,12 +145,17 @@ export default function NotificationsScreen() {
               const isExpanded = expandedId === item.id;
               const isRead = readIds.has(item.id);
               const isUrgent = item.priority === 'urgent' || item.is_mandatory;
+              const isCoordinatorBulletin =
+                item.category.toLowerCase().includes('club') ||
+                item.category.toLowerCase().includes('coordinator') ||
+                item.author_profile?.roles?.includes('coordinator');
 
               return (
                 <TouchableOpacity
                   key={item.id}
                   style={[
                     styles.glassCard,
+                    isCoordinatorBulletin && styles.glassCardCoordinator,
                     isUrgent && styles.glassCardUrgent,
                     !isRead && styles.glassCardUnread,
                   ]}
@@ -143,8 +164,16 @@ export default function NotificationsScreen() {
                 >
                   <View style={styles.glassSheen} />
                   <View style={styles.cardHeader}>
-                    <View style={[styles.iconCircle, isUrgent && styles.iconCircleUrgent]}>
-                      {isUrgent ? (
+                    <View
+                      style={[
+                        styles.iconCircle,
+                        isCoordinatorBulletin && styles.iconCircleCoordinator,
+                        isUrgent && styles.iconCircleUrgent,
+                      ]}
+                    >
+                      {isCoordinatorBulletin ? (
+                        <Users color="#C084FC" size={16} />
+                      ) : isUrgent ? (
                         <AlertTriangle color="#F43F5E" size={16} />
                       ) : (
                         <Megaphone color="#38BDF8" size={16} />
@@ -153,9 +182,15 @@ export default function NotificationsScreen() {
 
                     <View style={{ flex: 1 }}>
                       <View style={styles.badgeRow}>
-                        <View style={styles.catBadge}>
-                          <Text style={styles.catBadgeText}>{item.category.toUpperCase()}</Text>
-                        </View>
+                        {isCoordinatorBulletin ? (
+                          <View style={styles.catBadgeCoordinator}>
+                            <Text style={styles.catBadgeTextCoordinator}>CLUB COORDINATOR</Text>
+                          </View>
+                        ) : (
+                          <View style={styles.catBadge}>
+                            <Text style={styles.catBadgeText}>{item.category.toUpperCase()}</Text>
+                          </View>
+                        )}
                         {item.is_mandatory && (
                           <View style={styles.mandatoryBadge}>
                             <Text style={styles.mandatoryBadgeText}>MANDATORY</Text>
@@ -172,7 +207,7 @@ export default function NotificationsScreen() {
                         {new Date(item.created_at).toLocaleDateString(undefined, {
                           month: 'short',
                           day: 'numeric',
-                        })} • {item.author_profile?.full_name || 'Campus Administrator'}
+                        })} • {item.author_profile?.full_name || (isCoordinatorBulletin ? 'Club Coordinator' : 'Campus Administrator')}
                       </Text>
                     </View>
 
@@ -193,9 +228,11 @@ export default function NotificationsScreen() {
                   {isExpanded && (
                     <View style={styles.expandedFooter}>
                       <View style={styles.verifiedIssuer}>
-                        <CheckCircle2 color="#10B981" size={12} />
-                        <Text style={styles.verifiedIssuerText}>
-                          Official Dispatch • Authorized by SRM Administration
+                        <CheckCircle2 color={isCoordinatorBulletin ? '#C084FC' : '#10B981'} size={12} />
+                        <Text style={isCoordinatorBulletin ? styles.verifiedIssuerTextCoordinator : styles.verifiedIssuerText}>
+                          {isCoordinatorBulletin
+                            ? 'Club Coordinator Dispatch • Recognized Student Society'
+                            : 'Official Dispatch • Authorized by SRM Administration'}
                         </Text>
                       </View>
                     </View>
@@ -461,6 +498,33 @@ const styles = StyleSheet.create({
   },
   verifiedIssuerText: {
     color: '#10B981',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  glassCardCoordinator: {
+    borderColor: 'rgba(168, 85, 247, 0.25)',
+    borderTopColor: 'rgba(192, 132, 252, 0.5)',
+  },
+  iconCircleCoordinator: {
+    borderColor: 'rgba(168, 85, 247, 0.4)',
+    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+  },
+  catBadgeCoordinator: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
+    backgroundColor: 'rgba(168, 85, 247, 0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.4)',
+  },
+  catBadgeTextCoordinator: {
+    color: '#C084FC',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  verifiedIssuerTextCoordinator: {
+    color: '#C084FC',
     fontSize: 10,
     fontWeight: '700',
   },

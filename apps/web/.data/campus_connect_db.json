@@ -76,7 +76,7 @@
       ],
       "created_at": "2026-10-19T13:23:54.683Z",
       "updated_at": "2026-10-19T13:23:54.684Z",
-      "assigned_club_id": "c1000000-0000-0000-0000-000000000001"
+      "assigned_club_id": null
     },
     {
       "id": "u1000000-0000-0000-0000-000000000003",
@@ -280,6 +280,30 @@
   "registrations": [],
   "auditLogs": [
     {
+      "id": "log-1792417799357",
+      "action": "CLUB_DELETE",
+      "entity": "Robotics and Automation Society",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 7:19:59 pm",
+      "details": "Deleted recognized club: Robotics and Automation Society"
+    },
+    {
+      "id": "log-1792417792253",
+      "action": "CLUB_DELETE",
+      "entity": "Computing & Coding Club (C3)",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 7:19:52 pm",
+      "details": "Deleted recognized club: Computing & Coding Club (C3)"
+    },
+    {
+      "id": "log-1792417788658",
+      "action": "CLUB_DELETE",
+      "entity": "Robotics and Automation Society",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 7:19:48 pm",
+      "details": "Deleted recognized club: Robotics and Automation Society"
+    },
+    {
       "id": "log-1792416379357",
       "action": "USER_UPDATE",
       "entity": "Sai Chezhiyan P",
@@ -469,6 +493,36 @@
         "u-1792411608154-9k8nx"
       ],
       "created_at": "2026-10-19T13:01:36.732Z"
+    },
+    {
+      "id": "c1000000-0000-0000-0000-000000000003",
+      "name": "SRM Ramapuram Literary & Debating Society",
+      "category": "Cultural",
+      "description": "Fostering public speaking, parliamentary debates, creative writing, and model United Nations.",
+      "logo_url": "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300",
+      "contact_email": "litdeb@srmist.edu.in",
+      "created_at": "2026-10-19T13:49:48.655Z"
+    },
+    {
+      "id": "c1000000-0000-0000-0000-000000000004",
+      "name": "Google Developer Student Club (GDSC)",
+      "category": "Technical",
+      "description": "Peer-to-peer learning environment for students interested in Google developer technologies, mobile dev, and cloud.",
+      "logo_url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300",
+      "contact_email": "gdsc@srmist.edu.in",
+      "created_at": "2026-10-19T13:49:48.655Z"
+    },
+    {
+      "id": "c1000000-0000-0000-0000-000000000001",
+      "name": "Computing & Coding Club (C3)",
+      "category": "Technical",
+      "description": "Official computer science and programming community organizing hackathons, open source initiatives, and tech talks.",
+      "logo_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300",
+      "contact_email": "c3club@srmist.edu.in",
+      "coordinator_ids": [
+        "u1000000-0000-0000-0000-000000000002"
+      ],
+      "created_at": "2026-10-19T13:49:48.655Z"
     }
   ]
 }

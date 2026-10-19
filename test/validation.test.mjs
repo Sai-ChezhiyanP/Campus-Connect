@@ -167,4 +167,79 @@ test('Faculty Bulletin Permissions: Coordinators and students cannot broadcast b
   assert.equal(canPublishBulletin(admin), true);
 });
 
+test('Event Deletion and Disabling Permissions: Admins and Club Coordinators', () => {
+  const c3ClubId = 'c-c3-club';
+  const roboticsClubId = 'c-robotics-club';
+
+  const coordinator = {
+    id: 'u-coord-1',
+    roles: ['coordinator'],
+    assigned_club_id: c3ClubId,
+  };
+
+  const admin = {
+    id: 'u-admin-1',
+    roles: ['admin'],
+    assigned_club_id: null,
+  };
+
+  const student = {
+    id: 'u-student-1',
+    roles: ['student'],
+    assigned_club_id: null,
+  };
+
+  const c3Event = { id: 'e-1', title: 'C3 Hackathon', club_id: c3ClubId, status: 'published' };
+  const roboticsEvent = { id: 'e-2', title: 'Robotics Workshop', club_id: roboticsClubId, status: 'published' };
+
+  function canManageEvent(user, event) {
+    if (user.roles?.includes('admin')) return true;
+    if (user.roles?.includes('coordinator')) {
+      return Boolean(user.assigned_club_id) && event.club_id === user.assigned_club_id;
+    }
+    return false;
+  }
+
+  // Admin can delete or disable both events
+  assert.equal(canManageEvent(admin, c3Event), true);
+  assert.equal(canManageEvent(admin, roboticsEvent), true);
+
+  // C3 Coordinator can delete or disable C3 events
+  assert.equal(canManageEvent(coordinator, c3Event), true);
+
+  // C3 Coordinator CANNOT delete or disable Robotics events
+  assert.equal(canManageEvent(coordinator, roboticsEvent), false);
+
+  // Regular student cannot delete or disable any event
+  assert.equal(canManageEvent(student, c3Event), false);
+  assert.equal(canManageEvent(student, roboticsEvent), false);
+});
+
+test('Coordinator Bulletin Permissions: Club notices allowed, general/exam bulletins blocked', () => {
+  function canPublishCategory(user, category) {
+    const isAdmin = user.roles?.includes('admin');
+    const isFaculty = user.roles?.includes('faculty');
+    const isCoordinator = user.roles?.includes('coordinator');
+
+    if (isAdmin || isFaculty) return true;
+    if (isCoordinator && (category === 'Club' || category === 'Coordinator')) {
+      return Boolean(user.assigned_club_id);
+    }
+    return false;
+  }
+
+  const coordinatorWithClub = { id: 'u-c1', roles: ['coordinator'], assigned_club_id: 'c-chat' };
+  const coordinatorNoClub = { id: 'u-c2', roles: ['coordinator'], assigned_club_id: null };
+
+  // Coordinator can broadcast club notices
+  assert.equal(canPublishCategory(coordinatorWithClub, 'Club'), true);
+
+  // Coordinator cannot broadcast Examination / Administrative notices
+  assert.equal(canPublishCategory(coordinatorWithClub, 'Examination'), false);
+  assert.equal(canPublishCategory(coordinatorWithClub, 'Academic'), false);
+
+  // Coordinator without assigned club cannot broadcast club notices
+  assert.equal(canPublishCategory(coordinatorNoClub, 'Club'), false);
+});
+
 

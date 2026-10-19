@@ -3,10 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bell, GraduationCap, LogOut, ShieldCheck, Sparkles, User } from 'lucide-react';
+import { Bell, GraduationCap, LogOut, ShieldCheck, User } from 'lucide-react';
 import { store } from '@/lib/store';
 
-export function Navbar({ currentRole, onRoleSwitch }: { currentRole: string; onRoleSwitch: (role: string) => void }) {
+export function Navbar({ currentRole, onRoleSwitch }: { currentRole: string; onRoleSwitch?: (role: string) => void }) {
   const router = useRouter();
   const currentUser = store.currentUser;
 
@@ -43,26 +43,6 @@ export function Navbar({ currentRole, onRoleSwitch }: { currentRole: string; onR
         </Link>
 
         <div className="flex items-center gap-4">
-          {/* Quick Role Switcher for Development & Testing */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-slate-900/60 p-1 backdrop-blur-md">
-            <span className="text-[11px] font-semibold text-slate-400 pl-2 pr-1 flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-amber-400" /> Switch:
-            </span>
-            {(['admin', 'faculty', 'coordinator'] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => onRoleSwitch(r)}
-                className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-all capitalize cursor-pointer ${
-                  currentRole === r
-                    ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
 
           {/* User Profile Pill */}
           <div className="flex items-center gap-3 pl-2 border-l border-white/10">

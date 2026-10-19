@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase, updateEvent, updateEventStatus, upsertEvent } from '@/lib/server-db';
+import { deleteEvent, getDatabase, updateEvent, updateEventStatus, upsertEvent } from '@/lib/server-db';
 import { EventItem } from '@campus-connect/types';
 
 const CORS_HEADERS = {
@@ -110,6 +110,39 @@ export async function POST(request: NextRequest) {
     const saved = upsertEvent(event);
     return NextResponse.json(saved, {
       status: 201,
+      headers: CORS_HEADERS,
+    });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, {
+      status: 500,
+      headers: CORS_HEADERS,
+    });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const actor = searchParams.get('actor') || 'Authorized User';
+
+    if (!id) {
+      return NextResponse.json({ error: 'Event ID is required' }, {
+        status: 400,
+        headers: CORS_HEADERS,
+      });
+    }
+
+    const success = deleteEvent(id, actor);
+    if (!success) {
+      return NextResponse.json({ error: 'Event not found' }, {
+        status: 404,
+        headers: CORS_HEADERS,
+      });
+    }
+
+    return NextResponse.json({ success: true }, {
+      status: 200,
       headers: CORS_HEADERS,
     });
   } catch (err: any) {

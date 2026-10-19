@@ -689,9 +689,10 @@ class CampusConnectStore {
   createAnnouncement(announcementData: Omit<Announcement, 'id' | 'created_at'>): Announcement {
     const isAdmin = this.currentUser.roles?.includes('admin');
     const isFaculty = this.currentUser.roles?.includes('faculty');
+    const isCoordinator = this.currentUser.roles?.includes('coordinator');
 
-    if (!isAdmin && !isFaculty) {
-      throw new Error('Unauthorized: The Faculty Bulletin Hub is restricted to faculty members and administrators.');
+    if (!isAdmin && !isFaculty && (!isCoordinator || (announcementData.category !== 'Club' && (announcementData.category as string) !== 'Coordinator'))) {
+      throw new Error('Unauthorized: You do not have permissions to broadcast this bulletin.');
     }
 
     const newAnn: Announcement = {
@@ -869,6 +870,83 @@ class CampusConnectStore {
     }
 
     return event;
+  }
+
+  canManageEvent(event: EventItem): boolean {
+    const isAdmin = this.currentUser.roles?.includes('admin');
+    if (isAdmin) return true;
+    const isCoordinator = this.currentUser.roles?.includes('coordinator');
+    if (isCoordinator && this.currentUser.assigned_club_id && event.club_id === this.currentUser.assigned_club_id) {
+      return true;
+    }
+    return false;
+  }
+
+  deleteEvent(eventId: string): boolean {
+    const index = this.events.findIndex((e) => e.id === eventId);
+    if (index === -1) return false;
+
+    const event = this.events[index];
+    if (!this.canManageEvent(event)) {
+      throw new Error('Unauthorized: You can only delete events belonging to your assigned club.');
+    }
+
+    this.events.splice(index, 1);
+    this.registrations = this.registrations.filter((r) => r.event_id !== eventId);
+
+    this.recordAudit(
+      'EVENT_DELETE',
+      event.title,
+      this.currentUser.full_name,
+      `Event "${event.title}" permanently deleted by ${this.currentUser.full_name}`
+    );
+
+    this.notify();
+
+    if (typeof window !== 'undefined') {
+      fetch(`/api/events?id=${encodeURIComponent(eventId)}&actor=${encodeURIComponent(this.currentUser.full_name)}`, {
+        method: 'DELETE',
+      }).catch(() => {});
+    }
+
+    return true;
+  }
+
+  toggleDisableEvent(eventId: string): { success: boolean; newStatus?: EventItem['status'] } {
+    const event = this.events.find((e) => e.id === eventId);
+    if (!event) return { success: false };
+
+    if (!this.canManageEvent(event)) {
+      throw new Error('Unauthorized: You can only enable/disable events belonging to your assigned club.');
+    }
+
+    const newStatus: EventItem['status'] = event.status === 'cancelled' ? 'published' : 'cancelled';
+    event.status = newStatus;
+    event.updated_at = new Date().toISOString();
+
+    this.recordAudit(
+      newStatus === 'cancelled' ? 'EVENT_DISABLE' : 'EVENT_ENABLE',
+      event.title,
+      this.currentUser.full_name,
+      `Event "${event.title}" ${newStatus === 'cancelled' ? 'disabled / cancelled' : 'enabled / published'} by ${this.currentUser.full_name}`
+    );
+
+    this.notify();
+
+    if (typeof window !== 'undefined') {
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_status',
+          id: eventId,
+          status: newStatus,
+          rejection_reason: newStatus === 'cancelled' ? 'Event cancelled/disabled by coordinator/admin' : undefined,
+        }),
+      }).catch(() => {});
+    }
+
+    return { success: true, newStatus };
   }
 }
 

@@ -149,6 +149,7 @@ export default function ClubsManagementPage() {
   const handleDeleteClub = (clubId: string) => {
     const club = clubs.find((c) => c.id === clubId);
     store.deleteClub(clubId);
+    setClubs((prev) => prev.filter((c) => c.id !== clubId));
     setDeleteConfirmId(null);
     setNotification({ type: 'success', message: `Club "${club?.name || 'Club'}" removed.` });
     setTimeout(() => setNotification(null), 3500);

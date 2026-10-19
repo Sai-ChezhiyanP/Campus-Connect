@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
+  AlertTriangle,
   Calendar,
   CheckCircle2,
   Clock,
@@ -13,6 +14,7 @@ import {
   MapPin,
   Plus,
   Search,
+  Trash2,
   Upload,
   Users,
   X,
@@ -56,6 +58,44 @@ export default function EventsManagementPage() {
   const [editError, setEditError] = useState('');
   const [editSaving, setEditSaving] = useState(false);
   const [editSuccess, setEditSuccess] = useState('');
+
+  // Delete & Disable Action States
+  const [deleteConfirmEvent, setDeleteConfirmEvent] = useState<EventItem | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleToggleDisable = (event: EventItem) => {
+    try {
+      const res = store.toggleDisableEvent(event.id);
+      if (res.success) {
+        setEvents([...store.events]);
+        setActionFeedback({
+          type: 'success',
+          message: `Event "${event.title}" has been ${res.newStatus === 'cancelled' ? 'disabled / cancelled' : 'enabled / published'}.`,
+        });
+        setTimeout(() => setActionFeedback(null), 3500);
+      }
+    } catch (err: any) {
+      setActionFeedback({ type: 'error', message: err.message || 'Failed to update event status.' });
+      setTimeout(() => setActionFeedback(null), 4000);
+    }
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    try {
+      const event = events.find((e) => e.id === eventId);
+      store.deleteEvent(eventId);
+      setEvents((prev) => prev.filter((e) => e.id !== eventId));
+      setDeleteConfirmEvent(null);
+      setActionFeedback({
+        type: 'success',
+        message: `Event "${event?.title || 'Event'}" has been permanently removed.`,
+      });
+      setTimeout(() => setActionFeedback(null), 3500);
+    } catch (err: any) {
+      setActionFeedback({ type: 'error', message: err.message || 'Failed to delete event.' });
+      setTimeout(() => setActionFeedback(null), 4000);
+    }
+  };
 
   useEffect(() => {
     store.syncFromServer();
@@ -209,6 +249,29 @@ export default function EventsManagementPage() {
         </Link>
       </div>
 
+      {/* Action Feedback Toast */}
+      {actionFeedback && (
+        <div
+          className={`p-4 rounded-xl border flex items-center justify-between shadow-lg backdrop-blur-xl animate-in fade-in slide-in-from-top-2 ${
+            actionFeedback.type === 'success'
+              ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300'
+              : 'bg-rose-950/80 border-rose-500/30 text-rose-300'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {actionFeedback.type === 'success' ? (
+              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+            ) : (
+              <AlertTriangle className="h-5 w-5 text-rose-400" />
+            )}
+            <span className="text-sm font-semibold">{actionFeedback.message}</span>
+          </div>
+          <button onClick={() => setActionFeedback(null)} className="text-slate-400 hover:text-white">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="relative flex-1 w-full">
@@ -231,6 +294,7 @@ export default function EventsManagementPage() {
           >
             <option value="all">All Statuses</option>
             <option value="published">Published</option>
+            <option value="cancelled">Cancelled / Disabled</option>
             <option value="pending_approval">Pending Approval</option>
             <option value="draft">Draft</option>
             <option value="completed">Completed</option>
@@ -289,12 +353,14 @@ export default function EventsManagementPage() {
                       className={`text-[11px] font-extrabold px-3 py-1 rounded-full capitalize border ${
                         event.status === 'published'
                           ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                          : event.status === 'cancelled'
+                          ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
                           : event.status === 'pending_approval'
                           ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
                           : 'bg-slate-800/80 text-slate-400 border-white/10'
                       }`}
                     >
-                      {event.status.replace('_', ' ')}
+                      {event.status === 'cancelled' ? 'Disabled / Cancelled' : event.status.replace('_', ' ')}
                     </span>
                     {eventClub && (
                       <span className="text-[11px] text-slate-300 border border-white/10 bg-white/5 px-2.5 py-1 rounded-lg">
@@ -342,20 +408,55 @@ export default function EventsManagementPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {/* Edit Event Button (Scoped by permission) */}
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {/* Action Buttons (Scoped by permission) */}
                     {userCanEdit ? (
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEdit(event)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 text-xs font-bold transition-all hover:scale-105 cursor-pointer shadow-sm shadow-sky-500/10"
-                      >
-                        <Edit3 className="h-3.5 w-3.5 text-sky-400" />
-                        Edit
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(event)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 text-xs font-bold transition-all hover:scale-105 cursor-pointer shadow-sm shadow-sky-500/10"
+                        >
+                          <Edit3 className="h-3.5 w-3.5 text-sky-400" />
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleDisable(event)}
+                          title={event.status === 'cancelled' ? 'Enable event registrations' : 'Disable and pause registrations'}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 cursor-pointer shadow-sm ${
+                            event.status === 'cancelled'
+                              ? 'border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 shadow-emerald-500/10'
+                              : 'border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 shadow-amber-500/10'
+                          }`}
+                        >
+                          {event.status === 'cancelled' ? (
+                            <>
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                              Enable
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="h-3.5 w-3.5 text-amber-400" />
+                              Disable
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setDeleteConfirmEvent(event)}
+                          title="Permanently remove event"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-bold transition-all hover:scale-105 cursor-pointer shadow-sm shadow-rose-500/10"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+                          Delete
+                        </button>
+                      </>
                     ) : isCoordinator ? (
                       <span
-                        title="You can only edit events belonging to your assigned club"
+                        title="You can only manage events belonging to your assigned club"
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/5 bg-slate-800/40 text-[10px] text-slate-500 cursor-not-allowed"
                       >
                         <Lock className="h-3 w-3 text-slate-600" />
@@ -642,6 +743,45 @@ export default function EventsManagementPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Event Confirmation Modal */}
+      {deleteConfirmEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-3xl border border-rose-500/30 bg-slate-900/95 backdrop-blur-2xl p-6 shadow-2xl text-white space-y-4">
+            <div className="flex items-center gap-3 text-rose-400">
+              <div className="p-2.5 rounded-2xl bg-rose-500/15 border border-rose-500/30">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-white">Delete Campus Event?</h3>
+                <p className="text-xs text-slate-400">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-white/5">
+              Are you sure you want to permanently delete{' '}
+              <strong className="text-white">"{deleteConfirmEvent.title}"</strong>? All attendee registrations and access tokens for this event will be immediately purged.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmEvent(null)}
+                className="px-4 py-2 rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors"
+              >
+                Keep Event
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteEvent(deleteConfirmEvent.id)}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black shadow-lg shadow-rose-600/30 transition-all hover:scale-105"
+              >
+                Delete Event
+              </button>
+            </div>
           </div>
         </div>
       )}

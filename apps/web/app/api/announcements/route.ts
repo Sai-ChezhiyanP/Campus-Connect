@@ -35,14 +35,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const db = getDatabase();
 
-    // Enforce faculty or admin authorization
+    // Enforce role authorization: Admin & Faculty can publish any, Coordinators can publish Club bulletins
     if (body.author_id) {
       const author = db.profiles.find((p) => p.id === body.author_id);
       if (author && !author.roles?.includes('admin') && !author.roles?.includes('faculty')) {
-        return NextResponse.json(
-          { error: 'Forbidden: Only faculty members and administrators can publish announcements.' },
-          { status: 403, headers: CORS_HEADERS }
-        );
+        const isCoordinator = author.roles?.includes('coordinator');
+        const isClubBulletin = body.category === 'Club' || body.category === 'Coordinator';
+        if (!isCoordinator || !isClubBulletin) {
+          return NextResponse.json(
+            { error: 'Forbidden: You do not have permissions to publish this category of announcement.' },
+            { status: 403, headers: CORS_HEADERS }
+          );
+        }
       }
     }
 

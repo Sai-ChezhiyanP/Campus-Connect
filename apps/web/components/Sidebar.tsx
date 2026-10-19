@@ -30,6 +30,7 @@ export function Sidebar({ currentRole }: SidebarProps) {
     { label: 'Submit Event', href: '/dashboard/events/create', icon: PlusCircle, roles: ['admin', 'faculty', 'coordinator'] },
     { label: 'Approval Queue', href: '/dashboard/approvals', icon: CheckCircle2, roles: ['admin'] },
     { label: 'Faculty Bulletin Hub', href: '/dashboard/announcements', icon: Megaphone, roles: ['admin', 'faculty'] },
+    { label: 'Coordinator Bulletin', href: '/dashboard/coordinator-bulletin', icon: Megaphone, roles: ['admin', 'coordinator'] },
     { label: 'User Directory', href: '/dashboard/users', icon: Users, roles: ['admin'] },
     { label: 'Clubs & Societies', href: '/dashboard/clubs', icon: Users2, roles: ['admin', 'coordinator'] },
     { label: 'System Audit Logs', href: '/dashboard/audit', icon: FileText, roles: ['admin'] },

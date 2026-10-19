@@ -40,21 +40,13 @@ function ensureInitialized(): DatabaseState {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed = JSON.parse(content) as Partial<DatabaseState>;
 
-      const existingClubIds = new Set((parsed.clubs || []).map((c: Club) => c.id));
-      const clubsList = [...(parsed.clubs || [])];
-      SEED_CLUBS.forEach((sc) => {
-        if (!existingClubIds.has(sc.id)) {
-          clubsList.push(sc);
-        }
-      });
-
       return {
         profiles: parsed.profiles && parsed.profiles.length > 0 ? parsed.profiles : [...SEED_PROFILES],
         events: parsed.events || [],
         announcements: parsed.announcements && parsed.announcements.length > 0 ? parsed.announcements : [...SEED_ANNOUNCEMENTS],
         registrations: parsed.registrations || [],
         auditLogs: parsed.auditLogs || [...INITIAL_AUDIT_LOGS],
-        clubs: clubsList,
+        clubs: parsed.clubs !== undefined ? parsed.clubs : [...SEED_CLUBS],
       };
     }
   } catch (err) {
@@ -363,4 +355,25 @@ export function updateEvent(eventId: string, updates: Partial<EventItem>, actorN
 
   saveDatabase(db);
   return event;
+}
+
+export function deleteEvent(eventId: string, actorName: string = 'Authorized User'): boolean {
+  const db = getDatabase();
+  const index = db.events.findIndex((e) => e.id === eventId);
+  if (index === -1) return false;
+
+  const removed = db.events.splice(index, 1)[0];
+  db.registrations = db.registrations.filter((r) => r.event_id !== eventId);
+
+  db.auditLogs.unshift({
+    id: 'log-' + Date.now(),
+    action: 'EVENT_DELETE',
+    entity: removed.title,
+    actor: actorName,
+    timestamp: new Date().toLocaleString(),
+    details: `Event ${removed.title} deleted by ${actorName}`,
+  });
+
+  saveDatabase(db);
+  return true;
 }
