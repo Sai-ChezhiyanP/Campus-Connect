@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const db = getDatabase();
     const body = await request.json();
 
     // Check if this is an event edit

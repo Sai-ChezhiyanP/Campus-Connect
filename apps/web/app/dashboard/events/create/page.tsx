@@ -26,27 +26,27 @@ import { store } from '@/lib/store';
 const POSTER_PRESETS = [
   {
     name: 'Hackathon & Coding',
-    url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&q=80',
+    url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?fit=crop&w=840&h=1188&q=80',
   },
   {
     name: 'AI & Data Science',
-    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1000&q=80',
+    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?fit=crop&w=840&h=1188&q=80',
   },
   {
     name: 'Robotics & Hardware',
-    url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1000&q=80',
+    url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?fit=crop&w=840&h=1188&q=80',
   },
   {
     name: 'Cultural & Music Fest',
-    url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1000&q=80',
+    url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?fit=crop&w=840&h=1188&q=80',
   },
   {
     name: 'Sports & Athletics',
-    url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1000&q=80',
+    url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?fit=crop&w=840&h=1188&q=80',
   },
   {
     name: 'Campus Symposium',
-    url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1000&q=80',
+    url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?fit=crop&w=840&h=1188&q=80',
   },
 ];
 
@@ -114,16 +114,45 @@ export default function CreateEventPage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage('File size must be under 5MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMessage('File size must be under 10MB.');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setFormData((prev) => ({ ...prev, poster_url: result }));
-      setErrorMessage('');
+      const img = new window.Image();
+      img.onload = () => {
+        // Enforce exact A4 portrait dimensions (840 x 1188 px, aspect ratio 210:297)
+        const canvas = document.createElement('canvas');
+        const TARGET_WIDTH = 840;
+        const TARGET_HEIGHT = 1188; // 840 * (297/210) = 1188 exact A4 portrait ratio
+        canvas.width = TARGET_WIDTH;
+        canvas.height = TARGET_HEIGHT;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const imgRatio = img.width / img.height;
+          const targetRatio = TARGET_WIDTH / TARGET_HEIGHT;
+          let renderW = TARGET_WIDTH;
+          let renderH = TARGET_HEIGHT;
+          let offsetX = 0;
+          let offsetY = 0;
+
+          if (imgRatio > targetRatio) {
+            renderW = TARGET_HEIGHT * imgRatio;
+            offsetX = -(renderW - TARGET_WIDTH) / 2;
+          } else {
+            renderH = TARGET_WIDTH / imgRatio;
+            offsetY = -(renderH - TARGET_HEIGHT) / 2;
+          }
+
+          ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          setFormData((prev) => ({ ...prev, poster_url: compressedDataUrl }));
+          setErrorMessage('');
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -131,7 +160,7 @@ export default function CreateEventPage() {
   const coordinatorClub = store.clubs.find((c) => c.id === assignedClubId);
   const isCoordinatorUnassigned = !isAdmin && isCoordinator && !assignedClubId;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -146,7 +175,7 @@ export default function CreateEventPage() {
     }
 
     if (!formData.poster_url || !formData.poster_url.trim()) {
-      setErrorMessage('Event poster is mandatory. Please upload an image or pick a preset poster.');
+      setErrorMessage('A4 Portrait Event Poster is mandatory. Please upload an image or pick a preset.');
       return;
     }
 
@@ -163,7 +192,7 @@ export default function CreateEventPage() {
     setIsSubmitting(true);
 
     try {
-      store.createEvent({
+      await store.createEvent({
         title: formData.title,
         description: formData.description,
         category: formData.category,
@@ -287,56 +316,67 @@ export default function CreateEventPage() {
       {previewMode ? (
         /* Preview Card */
         <div className="rounded-2xl border border-white/10 border-t-white/20 bg-slate-900/60 backdrop-blur-2xl p-6 shadow-xl space-y-6 text-white overflow-hidden">
-          {/* Hero Poster in Preview */}
-          {formData.poster_url ? (
-            <div className="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-white/10 bg-slate-950">
-              <img
-                src={formData.poster_url}
-                alt="Event Poster Preview"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-sky-500/80 backdrop-blur-md text-slate-950 text-xs font-black uppercase tracking-wider">
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            {/* Hero A4 Portrait Poster in Preview */}
+            <div className="w-full md:w-64 max-w-[260px] aspect-[210/297] rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-slate-950 relative flex-shrink-0 mx-auto md:mx-0">
+              {formData.poster_url ? (
+                <>
+                  <img
+                    src={formData.poster_url}
+                    alt="Event Poster Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/20 text-[10px] font-black text-sky-400 tracking-wider uppercase">
+                    A4 Portrait Poster
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 p-4 text-center">
+                  <ImageIcon className="h-10 w-10 mb-2 opacity-50" />
+                  <p className="text-xs font-bold text-slate-400">No poster uploaded</p>
+                  <span className="text-[10px] text-slate-500 mt-1">210 × 297 mm format</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 space-y-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-black uppercase tracking-wider">
                   {formData.category}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-slate-900/80 border border-white/20 backdrop-blur-md text-white text-xs font-bold">
+                <span className="px-3 py-1 rounded-full bg-white/10 text-slate-200 border border-white/10 text-xs font-bold">
                   {formData.organizing_type === 'club'
                     ? store.clubs.find((c) => c.id === formData.club_id)?.name || 'Student Club'
                     : 'Institutional'}
                 </span>
+                <span className="px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> Awaiting Approval
+                </span>
               </div>
-            </div>
-          ) : (
-            <div className="w-full h-40 rounded-xl border border-dashed border-white/15 flex flex-col items-center justify-center text-slate-500 bg-slate-950/40">
-              <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
-              <p className="text-xs font-semibold">No poster uploaded yet</p>
-            </div>
-          )}
 
-          <div className="space-y-3">
-            <h2 className="text-2xl font-black text-white">{formData.title || 'Untitled Event'}</h2>
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {formData.description || 'No description provided yet.'}
-            </p>
-          </div>
+              <h2 className="text-2xl font-black text-white">{formData.title || 'Untitled Event'}</h2>
+              <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                {formData.description || 'No description provided yet.'}
+              </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
-            <div className="flex items-center gap-3 text-sm text-slate-300">
-              <MapPin className="h-4 w-4 text-sky-400" />
-              <span>{formData.venue || 'Venue TBD'}</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-slate-300">
-              <Calendar className="h-4 w-4 text-sky-400" />
-              <span>{formData.start_date ? new Date(formData.start_date).toLocaleString() : 'Date TBD'}</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-slate-300">
-              <Users className="h-4 w-4 text-sky-400" />
-              <span>Capacity: {formData.max_participants} seats</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-slate-300">
-              <Clock className="h-4 w-4 text-sky-400" />
-              <span>Deadline: {formData.registration_deadline ? new Date(formData.registration_deadline).toLocaleString() : 'TBD'}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-white/10 text-xs text-slate-300">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-sky-400" />
+                  <span>{formData.venue || 'Venue TBD'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-sky-400" />
+                  <span>{formData.start_date ? new Date(formData.start_date).toLocaleString() : 'Date TBD'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-sky-400" />
+                  <span>Capacity: {formData.max_participants} seats</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-sky-400" />
+                  <span>Deadline: {formData.registration_deadline ? new Date(formData.registration_deadline).toLocaleString() : 'TBD'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -344,15 +384,20 @@ export default function CreateEventPage() {
         /* Form */
         <form onSubmit={handleSubmit} className="space-y-6 bg-slate-900/60 backdrop-blur-2xl border border-white/10 border-t-white/20 rounded-2xl p-6 shadow-xl text-white">
           <div className="space-y-5">
-            {/* Event Poster Section (MANDATORY) */}
-            <div className="space-y-3 p-5 rounded-xl border border-sky-500/20 bg-sky-500/5">
+            {/* Event Poster Section (MANDATORY A4 PORTRAIT) */}
+            <div className="space-y-3 p-5 rounded-2xl border border-sky-500/30 bg-sky-500/5">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-sky-400">
-                    Event Poster * <span className="text-[10px] text-slate-400 font-normal lowercase">(mandatory)</span>
-                  </label>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Coordinators must upload a high-resolution banner or choose an official preset
+                  <div className="flex items-center gap-2">
+                    <label className="block text-xs font-black uppercase tracking-wider text-sky-400">
+                      Event Poster *
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full bg-sky-400/10 border border-sky-400/30 text-sky-300 text-[10px] font-extrabold uppercase tracking-wide">
+                      A4 Portrait (210 × 297 mm)
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Event posters must be in standard vertical A4 portrait format (1:1.414 ratio) for campus notice boards and mobile cards.
                   </p>
                 </div>
                 {formData.poster_url && (
@@ -367,15 +412,37 @@ export default function CreateEventPage() {
               </div>
 
               {formData.poster_url ? (
-                <div className="relative rounded-xl overflow-hidden border border-white/15 h-48 bg-slate-950 group">
-                  <img
-                    src={formData.poster_url}
-                    alt="Uploaded Poster"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <label className="cursor-pointer px-3.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 text-xs font-bold shadow-lg hover:bg-sky-400 transition-colors">
-                      Change Image
+                <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-slate-950/60 border border-white/10">
+                  <div className="relative w-48 sm:w-56 aspect-[210/297] rounded-xl overflow-hidden border border-white/20 shadow-2xl bg-slate-950 flex-shrink-0 group">
+                    <img
+                      src={formData.poster_url}
+                      alt="Uploaded A4 Poster"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md text-[9px] font-black text-sky-400 uppercase tracking-wider border border-white/10">
+                      A4 Portrait
+                    </div>
+                    <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <label className="cursor-pointer px-3.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 text-xs font-bold shadow-lg hover:bg-sky-400 transition-colors">
+                        Change Poster
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                      <CheckCircle2 className="h-4 w-4" /> A4 Portrait Poster Attached
+                    </div>
+                    <p className="leading-relaxed">
+                      Your poster has been formatted to the institutional A4 portrait standard (210×297mm). It will be showcased on the campus digital bulletin and mobile application.
+                    </p>
+                    <label className="inline-block mt-2 cursor-pointer text-sky-400 hover:text-sky-300 underline font-semibold">
+                      Upload replacement poster
                       <input
                         type="file"
                         accept="image/*"
@@ -386,12 +453,13 @@ export default function CreateEventPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                   {/* Upload Box */}
-                  <label className="border-2 border-dashed border-white/20 hover:border-sky-400/60 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-950/40 hover:bg-slate-900/60 transition-all group">
-                    <Upload className="h-7 w-7 text-sky-400 group-hover:scale-110 transition-transform mb-2" />
-                    <span className="text-xs font-bold text-white">Click to Upload Custom Poster</span>
-                    <span className="text-[10px] text-slate-400 mt-1">PNG, JPG, or WEBP (Max 5MB)</span>
+                  <label className="border-2 border-dashed border-white/20 hover:border-sky-400/60 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-950/40 hover:bg-slate-900/60 transition-all group aspect-[210/297] max-w-[210px] mx-auto w-full">
+                    <Upload className="h-8 w-8 text-sky-400 group-hover:scale-110 transition-transform mb-2" />
+                    <span className="text-xs font-bold text-white">Upload A4 Poster</span>
+                    <span className="text-[10px] text-slate-400 mt-1">Vertical A4 format</span>
+                    <span className="text-[9px] text-sky-400/80 mt-1">(Auto-formatted to 210×297mm)</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -401,23 +469,23 @@ export default function CreateEventPage() {
                   </label>
 
                   {/* Preset Quick Selection */}
-                  <div className="space-y-1.5">
-                    <span className="text-[11px] font-bold text-slate-300">Or Pick a Standard Preset:</span>
-                    <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-bold text-slate-300">Or Select an Official A4 Portrait Preset:</span>
+                    <div className="grid grid-cols-3 gap-2.5">
                       {POSTER_PRESETS.map((preset) => (
                         <button
                           key={preset.name}
                           type="button"
                           onClick={() => setFormData({ ...formData, poster_url: preset.url })}
-                          className="relative h-14 rounded-lg overflow-hidden border border-white/10 hover:border-sky-400 group text-left transition-all"
+                          className="relative aspect-[210/297] rounded-xl overflow-hidden border border-white/10 hover:border-sky-400 group text-left transition-all shadow-md"
                         >
                           <img
                             src={preset.url}
                             alt={preset.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
-                          <div className="absolute inset-0 bg-slate-950/70 group-hover:bg-slate-950/40 transition-colors flex items-center justify-center p-1 text-center">
-                            <span className="text-[9px] font-bold text-white line-clamp-2 leading-tight">
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex items-end p-1.5 text-center">
+                            <span className="text-[9px] font-bold text-white leading-tight w-full">
                               {preset.name}
                             </span>
                           </div>

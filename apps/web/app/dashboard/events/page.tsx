@@ -25,11 +25,11 @@ import { EVENT_CATEGORIES } from '@campus-connect/shared';
 import { store } from '@/lib/store';
 
 const POSTER_PRESETS = [
-  { name: 'Hackathon', url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&q=80' },
-  { name: 'AI & Data', url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1000&q=80' },
-  { name: 'Robotics', url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1000&q=80' },
-  { name: 'Cultural Fest', url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1000&q=80' },
-  { name: 'Sports Meet', url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1000&q=80' },
+  { name: 'Hackathon', url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?fit=crop&w=840&h=1188&q=80' },
+  { name: 'AI & Data', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?fit=crop&w=840&h=1188&q=80' },
+  { name: 'Robotics', url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?fit=crop&w=840&h=1188&q=80' },
+  { name: 'Cultural Fest', url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?fit=crop&w=840&h=1188&q=80' },
+  { name: 'Sports Meet', url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?fit=crop&w=840&h=1188&q=80' },
 ];
 
 export default function EventsManagementPage() {
@@ -166,16 +166,44 @@ export default function EventsManagementPage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setEditError('File size must be under 5MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      setEditError('File size must be under 10MB.');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setEditFormData((prev) => ({ ...prev, poster_url: result }));
-      setEditError('');
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const TARGET_WIDTH = 840;
+        const TARGET_HEIGHT = 1188; // 840 * (297/210) = 1188 exact A4 portrait ratio
+        canvas.width = TARGET_WIDTH;
+        canvas.height = TARGET_HEIGHT;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const imgRatio = img.width / img.height;
+          const targetRatio = TARGET_WIDTH / TARGET_HEIGHT;
+          let renderW = TARGET_WIDTH;
+          let renderH = TARGET_HEIGHT;
+          let offsetX = 0;
+          let offsetY = 0;
+
+          if (imgRatio > targetRatio) {
+            renderW = TARGET_HEIGHT * imgRatio;
+            offsetX = -(renderW - TARGET_WIDTH) / 2;
+          } else {
+            renderH = TARGET_WIDTH / imgRatio;
+            offsetY = -(renderH - TARGET_HEIGHT) / 2;
+          }
+
+          ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          setEditFormData((prev) => ({ ...prev, poster_url: compressedDataUrl }));
+          setEditError('');
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -329,8 +357,8 @@ export default function EventsManagementPage() {
                 {/* Specular Top Sheen */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
-                {/* Event Poster Thumbnail */}
-                <div className="relative w-full md:w-36 h-36 md:h-28 rounded-xl overflow-hidden border border-white/10 bg-slate-950 flex-shrink-0">
+                {/* Event Poster Thumbnail (Strict A4 Portrait Ratio) */}
+                <div className="relative w-24 sm:w-28 md:w-32 aspect-[210/297] rounded-xl overflow-hidden border border-white/15 bg-slate-950 flex-shrink-0 shadow-lg group mx-auto md:mx-0">
                   {event.poster_url ? (
                     <img
                       src={event.poster_url}
@@ -338,12 +366,12 @@ export default function EventsManagementPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-600">
+                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 p-2 text-center">
                       <ImageIcon className="h-6 w-6 mb-1 opacity-60" />
-                      <span className="text-[10px]">No Poster</span>
+                      <span className="text-[9px]">No Poster</span>
                     </div>
                   )}
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md text-[9px] font-black text-sky-400 uppercase tracking-wider border border-white/10">
+                  <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-950/85 backdrop-blur-md text-[8px] font-black text-sky-400 uppercase tracking-wider border border-white/10">
                     {event.category}
                   </span>
                 </div>
@@ -352,17 +380,26 @@ export default function EventsManagementPage() {
                 <div className="space-y-2 max-w-xl flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span
-                      className={`text-[11px] font-extrabold px-3 py-1 rounded-full capitalize border ${
+                      className={`text-[11px] font-extrabold px-3 py-1 rounded-full capitalize border flex items-center gap-1.5 ${
                         event.status === 'published'
                           ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
                           : event.status === 'cancelled'
                           ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
                           : event.status === 'pending_approval'
-                          ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                           : 'bg-slate-800/80 text-slate-400 border-white/10'
                       }`}
                     >
-                      {event.status === 'cancelled' ? 'Disabled / Cancelled' : event.status.replace('_', ' ')}
+                      {event.status === 'cancelled' ? (
+                        'Disabled / Cancelled'
+                      ) : event.status === 'pending_approval' ? (
+                        <>
+                          <Clock className="h-3 w-3 text-amber-400 animate-pulse" />
+                          Awaiting Admin Approval
+                        </>
+                      ) : (
+                        event.status.replace('_', ' ')
+                      )}
                     </span>
                     {eventClub && (
                       <span className="text-[11px] text-slate-300 border border-white/10 bg-white/5 px-2.5 py-1 rounded-lg">
@@ -516,12 +553,17 @@ export default function EventsManagementPage() {
             )}
 
             <form onSubmit={handleSaveEdit} className="space-y-5">
-              {/* Mandatory Poster Section */}
+              {/* Mandatory Poster Section (A4 Portrait) */}
               <div className="p-4 rounded-xl border border-sky-500/20 bg-sky-500/5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-black uppercase tracking-wider text-sky-400">
-                    Event Poster * <span className="text-[10px] text-slate-400 font-normal lowercase">(mandatory)</span>
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-black uppercase tracking-wider text-sky-400">
+                      Event Poster *
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full bg-sky-400/10 border border-sky-400/30 text-sky-300 text-[9px] font-extrabold uppercase">
+                      A4 Portrait (210×297mm)
+                    </span>
+                  </div>
                   {editFormData.poster_url && (
                     <button
                       type="button"
@@ -534,12 +576,15 @@ export default function EventsManagementPage() {
                 </div>
 
                 {editFormData.poster_url ? (
-                  <div className="relative h-44 rounded-xl overflow-hidden border border-white/15 bg-slate-950 group">
+                  <div className="relative w-40 sm:w-48 aspect-[210/297] mx-auto rounded-xl overflow-hidden border border-white/20 bg-slate-950 shadow-xl group">
                     <img
                       src={editFormData.poster_url}
                       alt="Event Poster Preview"
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-slate-950/80 text-[8px] font-bold text-sky-400 border border-white/10 uppercase">
+                      A4 Portrait
+                    </div>
                     <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <label className="cursor-pointer px-3.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 text-xs font-bold shadow-lg hover:bg-sky-400 transition-colors">
                         Replace Image
@@ -553,11 +598,11 @@ export default function EventsManagementPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <label className="border-2 border-dashed border-white/20 hover:border-sky-400/60 rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-950/40 hover:bg-slate-900/60 transition-all">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <label className="border-2 border-dashed border-white/20 hover:border-sky-400/60 rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-950/40 hover:bg-slate-900/60 transition-all aspect-[210/297] max-w-[160px] mx-auto w-full">
                       <Upload className="h-6 w-6 text-sky-400 mb-1" />
-                      <span className="text-xs font-bold text-white">Upload New Poster</span>
-                      <span className="text-[10px] text-slate-400">PNG, JPG (Max 5MB)</span>
+                      <span className="text-xs font-bold text-white">Upload A4 Poster</span>
+                      <span className="text-[9px] text-slate-400 mt-0.5">Vertical 210×297mm</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -566,19 +611,19 @@ export default function EventsManagementPage() {
                       />
                     </label>
 
-                    <div className="space-y-1">
-                      <span className="text-[11px] font-bold text-slate-300">Choose Preset:</span>
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-bold text-slate-300">Choose A4 Preset:</span>
                       <div className="grid grid-cols-3 gap-1.5">
                         {POSTER_PRESETS.map((p) => (
                           <button
                             key={p.name}
                             type="button"
                             onClick={() => setEditFormData({ ...editFormData, poster_url: p.url })}
-                            className="relative h-11 rounded-lg overflow-hidden border border-white/10 hover:border-sky-400 group"
+                            className="relative aspect-[210/297] rounded-lg overflow-hidden border border-white/10 hover:border-sky-400 group shadow-sm"
                           >
                             <img src={p.url} alt={p.name} className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-slate-950/60 flex items-center justify-center p-0.5">
-                              <span className="text-[8px] font-bold text-white text-center">{p.name}</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent flex items-end justify-center p-0.5">
+                              <span className="text-[7.5px] font-bold text-white text-center leading-tight">{p.name}</span>
                             </div>
                           </button>
                         ))}

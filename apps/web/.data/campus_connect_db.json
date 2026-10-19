@@ -75,8 +75,8 @@
         "coordinator"
       ],
       "created_at": "2026-10-19T13:23:54.683Z",
-      "updated_at": "2026-10-19T13:23:54.684Z",
-      "assigned_club_id": null
+      "updated_at": "2026-10-19T14:34:37.269Z",
+      "assigned_club_id": "c1000000-0000-0000-0000-000000000003"
     },
     {
       "id": "u1000000-0000-0000-0000-000000000003",
@@ -279,6 +279,78 @@
   ],
   "registrations": [],
   "auditLogs": [
+    {
+      "id": "log-1792421816693",
+      "action": "EVENT_DELETE",
+      "entity": "Debate Championship 2026",
+      "actor": "Authorized User",
+      "timestamp": "19/10/2026, 8:26:56 pm",
+      "details": "Event Debate Championship 2026 deleted by Authorized User"
+    },
+    {
+      "id": "log-1792421809036",
+      "action": "EVENT_PUBLISHED",
+      "entity": "Debate Championship 2026",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 8:26:49 pm",
+      "details": "Event Debate Championship 2026 status updated to published"
+    },
+    {
+      "id": "log-1792421808940",
+      "action": "EVENT_CREATE",
+      "entity": "Debate Championship 2026",
+      "actor": "Priya Raman",
+      "timestamp": "19/10/2026, 8:26:48 pm",
+      "details": "Event Debate Championship 2026 [Status: pending_approval]"
+    },
+    {
+      "id": "log-1792421294928",
+      "action": "EVENT_DELETE",
+      "entity": "Test Pending Event",
+      "actor": "Authorized User",
+      "timestamp": "19/10/2026, 8:18:14 pm",
+      "details": "Event Test Pending Event deleted by Authorized User"
+    },
+    {
+      "id": "log-1792421283792",
+      "action": "EVENT_CREATE",
+      "entity": "Test Pending Event",
+      "actor": "Organizer",
+      "timestamp": "19/10/2026, 8:18:03 pm",
+      "details": "Event Test Pending Event [Status: pending_approval]"
+    },
+    {
+      "id": "log-1792420487491",
+      "action": "CLUB_DELETE",
+      "entity": "Computing & Coding Club (C3)",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 8:04:47 pm",
+      "details": "Deleted recognized club: Computing & Coding Club (C3)"
+    },
+    {
+      "id": "log-1792420485805",
+      "action": "CLUB_DELETE",
+      "entity": "Google Developer Student Club (GDSC)",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 8:04:45 pm",
+      "details": "Deleted recognized club: Google Developer Student Club (GDSC)"
+    },
+    {
+      "id": "log-1792420477280",
+      "action": "CLUB_UPDATE",
+      "entity": "SRM Ramapuram Literary & Debating Society",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 8:04:37 pm",
+      "details": "Updated club: SRM Ramapuram Literary & Debating Society [Category: Cultural]"
+    },
+    {
+      "id": "log-1792420477269",
+      "action": "USER_UPDATE",
+      "entity": "Priya Raman (Test Coordinator)",
+      "actor": "Priya Raman (Test Coordinator)",
+      "timestamp": "19/10/2026, 8:04:37 pm",
+      "details": "Profile Priya Raman (Test Coordinator) (RA2411003010002) [Roles: student, coordinator]"
+    },
     {
       "id": "log-1792417799357",
       "action": "CLUB_DELETE",
@@ -501,28 +573,10 @@
       "description": "Fostering public speaking, parliamentary debates, creative writing, and model United Nations.",
       "logo_url": "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300",
       "contact_email": "litdeb@srmist.edu.in",
-      "created_at": "2026-10-19T13:49:48.655Z"
-    },
-    {
-      "id": "c1000000-0000-0000-0000-000000000004",
-      "name": "Google Developer Student Club (GDSC)",
-      "category": "Technical",
-      "description": "Peer-to-peer learning environment for students interested in Google developer technologies, mobile dev, and cloud.",
-      "logo_url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300",
-      "contact_email": "gdsc@srmist.edu.in",
-      "created_at": "2026-10-19T13:49:48.655Z"
-    },
-    {
-      "id": "c1000000-0000-0000-0000-000000000001",
-      "name": "Computing & Coding Club (C3)",
-      "category": "Technical",
-      "description": "Official computer science and programming community organizing hackathons, open source initiatives, and tech talks.",
-      "logo_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300",
-      "contact_email": "c3club@srmist.edu.in",
+      "created_at": "2026-10-19T13:49:48.655Z",
       "coordinator_ids": [
         "u1000000-0000-0000-0000-000000000002"
-      ],
-      "created_at": "2026-10-19T13:49:48.655Z"
+      ]
     }
   ]
 }

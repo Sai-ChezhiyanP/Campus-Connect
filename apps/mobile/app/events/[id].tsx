@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   },
   posterContainer: {
     position: 'relative',
-    height: 280,
+    height: 340,
     width: '100%',
   },
   poster: {

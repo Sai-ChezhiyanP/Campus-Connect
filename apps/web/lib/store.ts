@@ -653,7 +653,7 @@ class CampusConnectStore {
     return { success: true };
   }
 
-  createEvent(eventData: Omit<EventItem, 'id' | 'current_registrations' | 'created_at' | 'updated_at'>): EventItem {
+  async createEvent(eventData: Omit<EventItem, 'id' | 'current_registrations' | 'created_at' | 'updated_at'>): Promise<EventItem> {
     const isAdmin = this.currentUser.roles?.includes('admin');
     const isCoordinator = this.currentUser.roles?.includes('coordinator');
     const isFaculty = this.currentUser.roles?.includes('faculty');
@@ -686,11 +686,31 @@ class CampusConnectStore {
     this.notify();
 
     if (typeof window !== 'undefined') {
-      fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newEvent),
-      }).catch(() => {});
+      try {
+        const res = await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newEvent),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          // Rollback local change if server failed
+          this.events = this.events.filter((e) => e.id !== newEvent.id);
+          this.notify();
+          throw new Error(errData.error || `Server responded with status ${res.status}`);
+        }
+        const saved = await res.json().catch(() => null);
+        if (saved && saved.id) {
+          const idx = this.events.findIndex((e) => e.id === newEvent.id);
+          if (idx >= 0) {
+            this.events[idx] = saved;
+            this.notify();
+          }
+        }
+      } catch (err) {
+        console.error('Error creating event on server:', err);
+        throw err;
+      }
     }
 
     return newEvent;
