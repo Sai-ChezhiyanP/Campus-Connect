@@ -19,6 +19,7 @@ import {
   Clock,
   ExternalLink,
   MapPin,
+  Maximize2,
   QrCode,
   Share2,
   ShieldCheck,
@@ -46,6 +47,7 @@ export default function EventDetailScreen() {
     mobileStore.registrations.find(isThisUserReg)
   );
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showPosterModal, setShowPosterModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -133,13 +135,25 @@ export default function EventDetailScreen() {
       <GlassBackground />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Poster with Frosted Overlay */}
+        {/* Poster with Frosted Overlay (Partially Visible, Tap to View Full Poster) */}
         <View style={styles.posterContainer}>
-          <Image
-            source={{ uri: event.poster_url || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800' }}
-            style={styles.poster}
-          />
-          <View style={styles.posterGradient} />
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={0.9}
+            onPress={() => setShowPosterModal(true)}
+          >
+            <Image
+              source={{ uri: event.poster_url || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800' }}
+              style={styles.poster}
+            />
+            <View style={styles.posterGradient} />
+
+            {/* Tap for Full Poster Hint */}
+            <View style={styles.tapToViewPill}>
+              <Maximize2 color="#F8FAFC" size={12} />
+              <Text style={styles.tapToViewText}>Tap for full poster</Text>
+            </View>
+          </TouchableOpacity>
 
           {/* Navigation Pill */}
           <TouchableOpacity style={styles.floatingBack} onPress={() => router.back()} activeOpacity={0.8}>
@@ -378,6 +392,59 @@ export default function EventDetailScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Full-screen A4 Poster Modal (100% visible on tap) */}
+      <Modal
+        visible={showPosterModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowPosterModal(false)}
+      >
+        <SafeAreaView style={styles.fullPosterSafeArea} edges={['top', 'bottom']}>
+          <View style={styles.fullPosterModalBackdrop}>
+            {/* Header with Title and Close Button */}
+            <View style={styles.fullPosterHeader}>
+              <View style={styles.fullPosterTitleContainer}>
+                <Text style={styles.fullPosterTitle} numberOfLines={1}>
+                  {event.title}
+                </Text>
+                <Text style={styles.fullPosterSubtitle}>Official A4 Event Poster (210 × 297 mm)</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.fullPosterCloseBtn}
+                onPress={() => setShowPosterModal(false)}
+                activeOpacity={0.8}
+              >
+                <X color="#F8FAFC" size={20} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Fully visible A4 portrait poster */}
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => setShowPosterModal(false)}
+              style={styles.fullPosterImageContainer}
+            >
+              <Image
+                source={{
+                  uri: event.poster_url || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000',
+                }}
+                style={styles.fullPosterImage}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            {/* Bottom Dismiss Button */}
+            <TouchableOpacity
+              style={styles.fullPosterDismissBtn}
+              onPress={() => setShowPosterModal(false)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.fullPosterDismissText}>Close Poster</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -392,7 +459,7 @@ const styles = StyleSheet.create({
   },
   posterContainer: {
     position: 'relative',
-    height: 340,
+    height: 260,
     width: '100%',
   },
   poster: {
@@ -883,6 +950,104 @@ const styles = StyleSheet.create({
   modalDoneText: {
     color: '#070B14',
     fontSize: 14,
+    fontWeight: '700',
+  },
+  tapToViewPill: {
+    position: 'absolute',
+    bottom: 24,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.78)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tapToViewText: {
+    color: '#F8FAFC',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  fullPosterSafeArea: {
+    flex: 1,
+    backgroundColor: 'rgba(3, 7, 18, 0.96)',
+  },
+  fullPosterModalBackdrop: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  fullPosterHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  fullPosterTitleContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  fullPosterTitle: {
+    color: '#F8FAFC',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  fullPosterSubtitle: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  fullPosterCloseBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+  },
+  fullPosterImageContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  fullPosterImage: {
+    width: '100%',
+    height: '100%',
+    aspectRatio: 210 / 297,
+    borderRadius: 16,
+  },
+  fullPosterDismissBtn: {
+    alignSelf: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 10,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginBottom: 8,
+  },
+  fullPosterDismissText: {
+    color: '#F8FAFC',
+    fontSize: 13,
     fontWeight: '700',
   },
 });
