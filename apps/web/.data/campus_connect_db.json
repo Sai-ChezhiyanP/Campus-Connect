@@ -4,21 +4,21 @@
       "id": "u-1792411608154-9k8nx",
       "full_name": "Sai Chezhiyan P",
       "registration_number": "RA2511008020117",
-      "mobile_number": "+917972904166",
       "college_email": "sp8009@srmist.edu.in",
       "avatar_url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
-      "department_id": "IT",
-      "programme_id": "BTECH-IT",
-      "admission_year": 2025,
-      "current_year_of_study": 2,
-      "section": "B",
+      "department_id": null,
+      "programme_id": null,
+      "admission_year": 2026,
+      "current_year_of_study": 1,
+      "section": "A",
       "verification_status": "active",
       "roles": [
         "student",
         "coordinator"
       ],
-      "created_at": "2026-10-19T12:06:48.710Z",
-      "updated_at": "2026-10-19T13:14:46.522Z"
+      "created_at": "2026-10-19T13:26:19.357Z",
+      "updated_at": "2026-10-19T13:26:19.357Z",
+      "assigned_club_id": "c-1792414896059-8i5ue"
     },
     {
       "id": "u-1792410831199-o3mn1",
@@ -62,21 +62,21 @@
       "id": "u1000000-0000-0000-0000-000000000002",
       "full_name": "Priya Raman (Test Coordinator)",
       "registration_number": "RA2411003010002",
-      "mobile_number": "+919876543211",
       "college_email": "coordinator.test@srmist.edu.in",
-      "avatar_url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-      "department_id": "d1000000-0000-0000-0000-000000000001",
-      "programme_id": "p1000000-0000-0000-0000-000000000006",
-      "admission_year": 2023,
-      "current_year_of_study": 2,
-      "section": "B",
+      "avatar_url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+      "department_id": null,
+      "programme_id": null,
+      "admission_year": 2026,
+      "current_year_of_study": 1,
+      "section": "A",
       "verification_status": "active",
       "roles": [
         "student",
         "coordinator"
       ],
-      "created_at": "2026-10-19T11:48:06.247Z",
-      "updated_at": "2026-10-19T11:48:06.247Z"
+      "created_at": "2026-10-19T13:23:54.683Z",
+      "updated_at": "2026-10-19T13:23:54.684Z",
+      "assigned_club_id": "c1000000-0000-0000-0000-000000000001"
     },
     {
       "id": "u1000000-0000-0000-0000-000000000003",
@@ -279,6 +279,54 @@
   ],
   "registrations": [],
   "auditLogs": [
+    {
+      "id": "log-1792416379357",
+      "action": "USER_UPDATE",
+      "entity": "Sai Chezhiyan P",
+      "actor": "Sai Chezhiyan P",
+      "timestamp": "19/10/2026, 6:56:19 pm",
+      "details": "Profile Sai Chezhiyan P (RA2511008020117) [Roles: student, coordinator]"
+    },
+    {
+      "id": "log-1792416338874",
+      "action": "USER_UPDATE",
+      "entity": "Sai Chezhiyan P",
+      "actor": "Sai Chezhiyan P",
+      "timestamp": "19/10/2026, 6:55:38 pm",
+      "details": "Profile Sai Chezhiyan P (RA2511008020117) [Roles: student, coordinator]"
+    },
+    {
+      "id": "log-1792416234684",
+      "action": "USER_UPDATE",
+      "entity": "Priya Raman (Test Coordinator)",
+      "actor": "Priya Raman (Test Coordinator)",
+      "timestamp": "19/10/2026, 6:53:54 pm",
+      "details": "Profile Priya Raman (Test Coordinator) (RA2411003010002) [Roles: student, coordinator]"
+    },
+    {
+      "id": "log-1792416219362",
+      "action": "USER_UPDATE",
+      "entity": "Sai Chezhiyan P",
+      "actor": "Sai Chezhiyan P",
+      "timestamp": "19/10/2026, 6:53:39 pm",
+      "details": "Profile Sai Chezhiyan P (RA2511008020117) [Roles: student, coordinator]"
+    },
+    {
+      "id": "log-1792415988289",
+      "action": "USER_UPDATE",
+      "entity": "Sai Chezhiyan P",
+      "actor": "Sai Chezhiyan P",
+      "timestamp": "19/10/2026, 6:49:48 pm",
+      "details": "Profile Sai Chezhiyan P (RA2511008020117) [Roles: student, coordinator]"
+    },
+    {
+      "id": "log-1792415981302",
+      "action": "CLUB_UPDATE",
+      "entity": "CHAT Club [Community of Hackers and Advanced Technology]",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 6:49:41 pm",
+      "details": "Updated club: CHAT Club [Community of Hackers and Advanced Technology] [Category: Technical]"
+    },
     {
       "id": "log-1792415686522",
       "action": "USER_UPDATE",

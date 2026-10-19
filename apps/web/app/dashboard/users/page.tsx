@@ -64,7 +64,11 @@ export default function UserManagementPage() {
   const handleClubAssignment = (userId: string, clubId: string) => {
     const assignedId = clubId === '' ? null : clubId;
     store.assignCoordinatorToClub(userId, assignedId);
-    setProfiles([...store.profiles]);
+
+    // Optimistically update profiles in state
+    setProfiles((prev) =>
+      prev.map((p) => (p.id === userId ? { ...p, assigned_club_id: assignedId } : p))
+    );
     setClubs([...store.clubs]);
 
     const targetUser = store.profiles.find((p) => p.id === userId);

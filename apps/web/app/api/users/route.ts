@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       section: (body.section || 'A').toUpperCase(),
       verification_status: body.verification_status || 'active',
       roles: body.roles && body.roles.length > 0 ? body.roles : ['student'],
+      assigned_club_id: body.assigned_club_id !== undefined ? body.assigned_club_id : null,
       created_at: body.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

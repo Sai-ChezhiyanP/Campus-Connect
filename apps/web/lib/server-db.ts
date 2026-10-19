@@ -39,13 +39,22 @@ function ensureInitialized(): DatabaseState {
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed = JSON.parse(content) as Partial<DatabaseState>;
+
+      const existingClubIds = new Set((parsed.clubs || []).map((c: Club) => c.id));
+      const clubsList = [...(parsed.clubs || [])];
+      SEED_CLUBS.forEach((sc) => {
+        if (!existingClubIds.has(sc.id)) {
+          clubsList.push(sc);
+        }
+      });
+
       return {
         profiles: parsed.profiles && parsed.profiles.length > 0 ? parsed.profiles : [...SEED_PROFILES],
         events: parsed.events || [],
         announcements: parsed.announcements && parsed.announcements.length > 0 ? parsed.announcements : [...SEED_ANNOUNCEMENTS],
         registrations: parsed.registrations || [],
         auditLogs: parsed.auditLogs || [...INITIAL_AUDIT_LOGS],
-        clubs: parsed.clubs && parsed.clubs.length > 0 ? parsed.clubs : [...SEED_CLUBS],
+        clubs: clubsList,
       };
     }
   } catch (err) {
@@ -125,6 +134,7 @@ export function upsertUser(profile: Profile): Profile {
     db.profiles[index] = {
       ...db.profiles[index],
       ...profile,
+      assigned_club_id: profile.assigned_club_id !== undefined ? profile.assigned_club_id : db.profiles[index].assigned_club_id || null,
       updated_at: new Date().toISOString(),
     };
   } else {
@@ -133,10 +143,27 @@ export function upsertUser(profile: Profile): Profile {
       id: profile.id || 'u-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
       verification_status: profile.verification_status || 'active',
       roles: profile.roles && profile.roles.length > 0 ? profile.roles : ['student'],
+      assigned_club_id: profile.assigned_club_id || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
     db.profiles.unshift(newProfile);
+  }
+
+  // Synchronize coordinator_ids on clubs
+  if (profile.assigned_club_id !== undefined) {
+    const assignedClubId = profile.assigned_club_id;
+    const targetUserId = index >= 0 ? db.profiles[index].id : profile.id;
+    db.clubs.forEach((c) => {
+      if (!c.coordinator_ids) c.coordinator_ids = [];
+      if (assignedClubId && c.id === assignedClubId) {
+        if (!c.coordinator_ids.includes(targetUserId)) {
+          c.coordinator_ids.push(targetUserId);
+        }
+      } else {
+        c.coordinator_ids = c.coordinator_ids.filter((id) => id !== targetUserId);
+      }
+    });
   }
 
   const saved = index >= 0 ? db.profiles[index] : db.profiles[0];

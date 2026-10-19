@@ -781,6 +781,10 @@ class CampusConnectStore {
     user.assigned_club_id = clubId;
     user.updated_at = new Date().toISOString();
 
+    if (this.currentUser.id === userId) {
+      this.currentUser.assigned_club_id = clubId;
+    }
+
     // Ensure coordinator_ids on club are updated
     this.clubs.forEach((c) => {
       if (!c.coordinator_ids) c.coordinator_ids = [];
@@ -808,6 +812,17 @@ class CampusConnectStore {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user),
       }).catch(() => {});
+
+      if (clubId) {
+        const targetClub = this.clubs.find((c) => c.id === clubId);
+        if (targetClub) {
+          fetch('/api/clubs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(targetClub),
+          }).catch(() => {});
+        }
+      }
     }
 
     return true;
