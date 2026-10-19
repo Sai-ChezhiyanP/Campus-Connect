@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Calendar,
@@ -10,6 +11,7 @@ import {
   FileText,
   Image as ImageIcon,
   Info,
+  Lock,
   MapPin,
   Send,
   Upload,
@@ -190,6 +192,37 @@ export default function CreateEventPage() {
       setErrorMessage(err.message || 'Failed to submit event.');
     }
   };
+
+  const isAllowed = Boolean(isAdmin || isCoordinator || store.currentUser?.roles?.includes('faculty'));
+
+  if (!isAllowed) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 px-6 text-center space-y-6">
+        <div className="relative mx-auto w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-500/20">
+          <Lock className="h-10 w-10 text-rose-400" />
+        </div>
+
+        <div className="space-y-3">
+          <span className="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-black uppercase tracking-wider">
+            Access Restricted
+          </span>
+          <h1 className="text-2xl font-black text-white">Event Creation Restricted</h1>
+          <p className="text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
+            Students cannot create campus events. Official event submissions are strictly reserved for appointed Club Coordinators, Faculty Members, and Campus Administrators.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 pt-4">
+          <Link
+            href="/dashboard/events"
+            className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-extrabold shadow-lg shadow-sky-500/20 transition-all hover:scale-105"
+          >
+            Go to Events Directory
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

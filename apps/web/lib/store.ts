@@ -448,7 +448,11 @@ class CampusConnectStore {
 
     // Check Administrator credentials
     if (query === 'admin' || query === 'admin.test@srmist.edu.in' || query === 'emp00001') {
-      const adminUser = this.profiles[3];
+      const adminUser =
+        this.profiles.find((p) => p.college_email.toLowerCase() === 'admin.test@srmist.edu.in') ||
+        this.profiles.find((p) => p.registration_number.toUpperCase() === 'EMP00001') ||
+        this.profiles.find((p) => p.roles?.includes('admin')) ||
+        SEED_PROFILES[3];
       this.currentUser = adminUser;
       this.isLoggedIn = true;
       this.recordLogin(adminUser, 'Web Management Portal');
@@ -462,7 +466,11 @@ class CampusConnectStore {
 
     // Check Faculty credentials
     if (query === 'faculty' || query === 'faculty.test@srmist.edu.in' || query === 'emp00412') {
-      const facultyUser = this.profiles[2];
+      const facultyUser =
+        this.profiles.find((p) => p.college_email.toLowerCase() === 'faculty.test@srmist.edu.in') ||
+        this.profiles.find((p) => p.registration_number.toUpperCase() === 'EMP00412') ||
+        this.profiles.find((p) => p.roles?.includes('faculty')) ||
+        SEED_PROFILES[2];
       this.currentUser = facultyUser;
       this.isLoggedIn = true;
       this.recordLogin(facultyUser, 'Web Management Portal');
@@ -476,7 +484,11 @@ class CampusConnectStore {
 
     // Check Coordinator credentials
     if (query === 'coordinator' || query === 'coordinator.test@srmist.edu.in' || query === 'ra2411003010002') {
-      const coordUser = this.profiles[1];
+      const coordUser =
+        this.profiles.find((p) => p.college_email.toLowerCase() === 'coordinator.test@srmist.edu.in') ||
+        this.profiles.find((p) => p.registration_number.toUpperCase() === 'RA2411003010002') ||
+        this.profiles.find((p) => p.roles?.includes('coordinator')) ||
+        SEED_PROFILES[1];
       this.currentUser = coordUser;
       this.isLoggedIn = true;
       this.recordLogin(coordUser, 'Web Management Portal');
@@ -490,7 +502,11 @@ class CampusConnectStore {
 
     // Check Student credentials
     if (query === 'student' || query === 'student.test@srmist.edu.in' || query === 'ra2411003010001') {
-      const studentUser = this.profiles[0];
+      const studentUser =
+        this.profiles.find((p) => p.college_email.toLowerCase() === 'student.test@srmist.edu.in') ||
+        this.profiles.find((p) => p.registration_number.toUpperCase() === 'RA2411003010001') ||
+        this.profiles.find((p) => p.roles?.includes('student') && !p.roles?.includes('coordinator') && !p.roles?.includes('admin') && !p.roles?.includes('faculty')) ||
+        SEED_PROFILES[0];
       this.currentUser = studentUser;
       this.isLoggedIn = true;
       this.recordLogin(studentUser, 'Web Management Portal');
@@ -557,9 +573,16 @@ class CampusConnectStore {
   }
 
   setCurrentUser(roleOrEmail: string) {
-    const found = this.profiles.find(
-      (p) => p.college_email === roleOrEmail || p.roles?.includes(roleOrEmail as AppRole)
-    );
+    const roleEmailMap: Record<string, string> = {
+      admin: 'admin.test@srmist.edu.in',
+      faculty: 'faculty.test@srmist.edu.in',
+      coordinator: 'coordinator.test@srmist.edu.in',
+      student: 'student.test@srmist.edu.in',
+    };
+    const targetEmail = roleEmailMap[roleOrEmail.toLowerCase()] || roleOrEmail.toLowerCase();
+    const found =
+      this.profiles.find((p) => p.college_email.toLowerCase() === targetEmail) ||
+      this.profiles.find((p) => p.roles?.includes(roleOrEmail as AppRole));
     if (found) {
       this.currentUser = found;
       this.isLoggedIn = true;
@@ -633,6 +656,11 @@ class CampusConnectStore {
   createEvent(eventData: Omit<EventItem, 'id' | 'current_registrations' | 'created_at' | 'updated_at'>): EventItem {
     const isAdmin = this.currentUser.roles?.includes('admin');
     const isCoordinator = this.currentUser.roles?.includes('coordinator');
+    const isFaculty = this.currentUser.roles?.includes('faculty');
+
+    if (!isAdmin && !isCoordinator && !isFaculty) {
+      throw new Error('Unauthorized: Students cannot create events. Only Club Coordinators, Faculty, and Admins are permitted.');
+    }
 
     if (!isAdmin && isCoordinator) {
       if (!this.currentUser.assigned_club_id) {

@@ -85,6 +85,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    if (body.created_by && body.created_by !== 'system') {
+      const creator = db.profiles.find((p) => p.id === body.created_by);
+      if (creator && !creator.roles?.includes('admin') && !creator.roles?.includes('faculty') && !creator.roles?.includes('coordinator')) {
+        return NextResponse.json({ error: 'Forbidden: Students are not authorized to create campus events.' }, {
+          status: 403,
+          headers: CORS_HEADERS,
+        });
+      }
+    }
+
     const event: EventItem = {
       id: body.id || 'e-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
       title: body.title,

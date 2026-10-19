@@ -242,4 +242,59 @@ test('Coordinator Bulletin Permissions: Club notices allowed, general/exam bulle
   assert.equal(canPublishCategory(coordinatorNoClub, 'Club'), false);
 });
 
+test('One-tap Demo Login Resolution: Independent of profile array ordering', () => {
+  const profiles = [
+    { id: 'u-1', full_name: 'Custom Student', college_email: 'sp@srmist.edu.in', roles: ['student', 'coordinator'] },
+    { id: 'u-2', full_name: 'Rohit Verma', college_email: 'rohit@srmist.edu.in', roles: ['student'] },
+    { id: 'u-3', full_name: 'Aarav Sharma', college_email: 'student.test@srmist.edu.in', roles: ['student'] },
+    { id: 'u-4', full_name: 'Priya Raman', college_email: 'coordinator.test@srmist.edu.in', roles: ['coordinator'] },
+    { id: 'u-5', full_name: 'Dr. K. Venkatesh', college_email: 'faculty.test@srmist.edu.in', roles: ['faculty'] },
+    { id: 'u-6', full_name: 'Campus Administrator', college_email: 'admin.test@srmist.edu.in', roles: ['admin'] },
+  ];
+
+  function resolveDemoUser(query) {
+    if (query === 'admin' || query === 'admin.test@srmist.edu.in') {
+      return profiles.find((p) => p.college_email === 'admin.test@srmist.edu.in') || profiles.find((p) => p.roles?.includes('admin'));
+    }
+    if (query === 'faculty' || query === 'faculty.test@srmist.edu.in') {
+      return profiles.find((p) => p.college_email === 'faculty.test@srmist.edu.in') || profiles.find((p) => p.roles?.includes('faculty'));
+    }
+    if (query === 'coordinator' || query === 'coordinator.test@srmist.edu.in') {
+      return profiles.find((p) => p.college_email === 'coordinator.test@srmist.edu.in') || profiles.find((p) => p.roles?.includes('coordinator'));
+    }
+    return profiles.find((p) => p.college_email === 'student.test@srmist.edu.in');
+  }
+
+  // Admin button returns Campus Administrator
+  assert.equal(resolveDemoUser('admin').full_name, 'Campus Administrator');
+  assert.equal(resolveDemoUser('admin').roles.includes('admin'), true);
+
+  // Faculty button returns Dr. K. Venkatesh
+  assert.equal(resolveDemoUser('faculty').full_name, 'Dr. K. Venkatesh');
+  assert.equal(resolveDemoUser('faculty').roles.includes('faculty'), true);
+
+  // Coordinator button returns Priya Raman
+  assert.equal(resolveDemoUser('coordinator').full_name, 'Priya Raman');
+  assert.equal(resolveDemoUser('coordinator').roles.includes('coordinator'), true);
+});
+
+test('Student Event Creation Restriction: Students are blocked from creating events', () => {
+  function canCreateEvent(user) {
+    const isAdmin = Boolean(user.roles?.includes('admin'));
+    const isCoordinator = Boolean(user.roles?.includes('coordinator'));
+    const isFaculty = Boolean(user.roles?.includes('faculty'));
+    return isAdmin || isCoordinator || isFaculty;
+  }
+
+  const student = { id: 'u-s1', roles: ['student'] };
+  const coordinator = { id: 'u-c1', roles: ['coordinator'] };
+  const faculty = { id: 'u-f1', roles: ['faculty'] };
+  const admin = { id: 'u-a1', roles: ['admin'] };
+
+  assert.equal(canCreateEvent(student), false);
+  assert.equal(canCreateEvent(coordinator), true);
+  assert.equal(canCreateEvent(faculty), true);
+  assert.equal(canCreateEvent(admin), true);
+});
+
 

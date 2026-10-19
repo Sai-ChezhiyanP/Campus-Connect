@@ -241,12 +241,14 @@ export default function EventsManagementPage() {
           </p>
         </div>
 
-        <Link
-          href="/dashboard/events/create"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 text-xs font-black shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]"
-        >
-          <Plus className="h-4 w-4" /> Create New Event
-        </Link>
+        {(isAdmin || isCoordinator || currentUser?.roles?.includes('faculty')) && (
+          <Link
+            href="/dashboard/events/create"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 text-xs font-black shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]"
+          >
+            <Plus className="h-4 w-4" /> Create New Event
+          </Link>
+        )}
       </div>
 
       {/* Action Feedback Toast */}
