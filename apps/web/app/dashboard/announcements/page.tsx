@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   AlertCircle,
   Eye,
+  Lock,
   Megaphone,
   Radio,
   Send,
@@ -14,15 +16,58 @@ import { ANNOUNCEMENT_CATEGORIES } from '@campus-connect/shared';
 import { store } from '@/lib/store';
 
 export default function FacultyBulletinHubPage() {
+  const [currentUser, setCurrentUser] = useState(store.currentUser);
   const [announcements, setAnnouncements] = useState(store.announcements);
   const [isCreating, setIsCreating] = useState(false);
 
   React.useEffect(() => {
-    const sync = () => setAnnouncements([...store.announcements]);
+    store.syncFromServer();
+    const sync = () => {
+      setAnnouncements([...store.announcements]);
+      setCurrentUser({ ...store.currentUser });
+    };
     sync();
     const unsub = store.subscribe(sync);
     return () => unsub();
   }, []);
+
+  const isFacultyOrAdmin = Boolean(currentUser.roles?.includes('admin') || currentUser.roles?.includes('faculty'));
+
+  if (!isFacultyOrAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 px-6 text-center space-y-6">
+        <div className="relative mx-auto w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-500/20">
+          <Lock className="h-10 w-10 text-rose-400" />
+        </div>
+
+        <div className="space-y-3">
+          <span className="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-black uppercase tracking-wider">
+            Access Restricted
+          </span>
+          <h1 className="text-2xl font-black text-white">Faculty Bulletin Hub Restricted</h1>
+          <p className="text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
+            The Faculty Bulletin Hub is strictly reserved for verified SRMIST Faculty members and Campus Administrators to broadcast authorized academic circulars.
+            Club Coordinators do not have permission to manage or publish through this hub.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 pt-4">
+          <Link
+            href="/dashboard"
+            className="px-5 py-2.5 rounded-xl border border-white/10 bg-slate-900/80 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-colors"
+          >
+            Return to Dashboard
+          </Link>
+          <Link
+            href="/dashboard/events"
+            className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-extrabold shadow-lg shadow-sky-500/20 transition-all hover:scale-105"
+          >
+            Go to Events Directory
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Form State
   const [title, setTitle] = useState('');

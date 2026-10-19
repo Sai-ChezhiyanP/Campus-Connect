@@ -33,6 +33,18 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const db = getDatabase();
+
+    // Enforce faculty or admin authorization
+    if (body.author_id) {
+      const author = db.profiles.find((p) => p.id === body.author_id);
+      if (author && !author.roles?.includes('admin') && !author.roles?.includes('faculty')) {
+        return NextResponse.json(
+          { error: 'Forbidden: Only faculty members and administrators can publish announcements.' },
+          { status: 403, headers: CORS_HEADERS }
+        );
+      }
+    }
 
     const ann: Announcement = {
       id: body.id || 'a-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),

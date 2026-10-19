@@ -148,3 +148,23 @@ test('Coordinator Scoped Permissions: Coordinators can only edit events belongin
   assert.equal(canEdit(unassignedCoord, roboticsEvent), false);
 });
 
+test('Faculty Bulletin Permissions: Coordinators and students cannot broadcast bulletins; only Faculty and Admins are authorized', () => {
+  function canPublishBulletin(user) {
+    return Boolean(user.roles?.includes('admin') || user.roles?.includes('faculty'));
+  }
+
+  const coordinator = { id: 'u-coord', roles: ['student', 'coordinator'] };
+  const student = { id: 'u-stud', roles: ['student'] };
+  const faculty = { id: 'u-fac', roles: ['faculty'] };
+  const admin = { id: 'u-adm', roles: ['admin'] };
+
+  // Coordinators and students are strictly blocked
+  assert.equal(canPublishBulletin(coordinator), false);
+  assert.equal(canPublishBulletin(student), false);
+
+  // Faculty and Admins are authorized
+  assert.equal(canPublishBulletin(faculty), true);
+  assert.equal(canPublishBulletin(admin), true);
+});
+
+

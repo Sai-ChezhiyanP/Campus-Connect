@@ -687,6 +687,13 @@ class CampusConnectStore {
   }
 
   createAnnouncement(announcementData: Omit<Announcement, 'id' | 'created_at'>): Announcement {
+    const isAdmin = this.currentUser.roles?.includes('admin');
+    const isFaculty = this.currentUser.roles?.includes('faculty');
+
+    if (!isAdmin && !isFaculty) {
+      throw new Error('Unauthorized: The Faculty Bulletin Hub is restricted to faculty members and administrators.');
+    }
+
     const newAnn: Announcement = {
       ...announcementData,
       id: 'a-' + Math.random().toString(36).substring(2, 9),

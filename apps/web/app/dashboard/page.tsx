@@ -64,12 +64,21 @@ export default function DashboardOverviewPage() {
             >
               <Plus className="h-4 w-4" /> Submit Event
             </Link>
-            <Link
-              href="/dashboard/announcements"
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900/80 border border-white/15 text-white px-4 py-2 text-sm font-bold hover:bg-slate-800 transition-colors backdrop-blur-md"
-            >
-              <Megaphone className="h-4 w-4 text-sky-400" /> Faculty Bulletin Hub
-            </Link>
+            {Boolean(user.roles?.includes('admin') || user.roles?.includes('faculty')) ? (
+              <Link
+                href="/dashboard/announcements"
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-900/80 border border-white/15 text-white px-4 py-2 text-sm font-bold hover:bg-slate-800 transition-colors backdrop-blur-md"
+              >
+                <Megaphone className="h-4 w-4 text-sky-400" /> Faculty Bulletin Hub
+              </Link>
+            ) : user.roles?.includes('coordinator') ? (
+              <Link
+                href="/dashboard/clubs"
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-900/80 border border-white/15 text-white px-4 py-2 text-sm font-bold hover:bg-slate-800 transition-colors backdrop-blur-md"
+              >
+                <Users2 className="h-4 w-4 text-sky-400" /> My Clubs & Societies
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>
@@ -206,12 +215,14 @@ export default function DashboardOverviewPage() {
               <h2 className="text-lg font-extrabold text-white">Faculty Bulletins</h2>
               <p className="text-xs text-slate-400">Official department notices</p>
             </div>
-            <Link
-              href="/dashboard/announcements"
-              className="text-xs font-bold text-sky-400 hover:underline"
-            >
-              Manage
-            </Link>
+            {Boolean(user.roles?.includes('admin') || user.roles?.includes('faculty')) && (
+              <Link
+                href="/dashboard/announcements"
+                className="text-xs font-bold text-sky-400 hover:underline"
+              >
+                Manage
+              </Link>
+            )}
           </div>
 
           <div className="space-y-3">

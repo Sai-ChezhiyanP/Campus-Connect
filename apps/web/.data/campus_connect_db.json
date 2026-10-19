@@ -18,7 +18,7 @@
         "coordinator"
       ],
       "created_at": "2026-10-19T12:06:48.710Z",
-      "updated_at": "2026-10-19T13:01:36.721Z"
+      "updated_at": "2026-10-19T13:14:46.522Z"
     },
     {
       "id": "u-1792410831199-o3mn1",
@@ -170,6 +170,21 @@
   ],
   "announcements": [
     {
+      "id": "a-1792415787283-svxzq",
+      "title": "Authorized Faculty Notice",
+      "content": "Classes suspended tomorrow due to symposium.",
+      "category": "General",
+      "priority": "medium",
+      "is_mandatory": false,
+      "target_scope": "campus",
+      "target_department_id": null,
+      "target_programme_id": null,
+      "target_admission_year": null,
+      "target_section": null,
+      "author_id": "u1000000-0000-0000-0000-000000000003",
+      "created_at": "2026-10-19T13:16:27.283Z"
+    },
+    {
       "id": "a1000000-0000-0000-0000-000000000001",
       "title": "MANDATORY: Odd Semester End-Term Examination Schedule Released",
       "content": "All B.Tech students across all departments are hereby notified that the final timetable for the upcoming semester examinations has been published. Hall tickets will be issued through the academic ERP portal starting Friday. Attendance minimum of 75% is strictly enforced.",
@@ -264,6 +279,46 @@
   ],
   "registrations": [],
   "auditLogs": [
+    {
+      "id": "log-1792415686522",
+      "action": "USER_UPDATE",
+      "entity": "Sai Chezhiyan P",
+      "actor": "Sai Chezhiyan P",
+      "timestamp": "19/10/2026, 6:44:46 pm",
+      "details": "Profile Sai Chezhiyan P (RA2511008020117) [Roles: student, coordinator]"
+    },
+    {
+      "id": "log-1792415603767",
+      "action": "CLUB_DELETE",
+      "entity": "Google Developer Student Club (GDSC)",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 6:43:23 pm",
+      "details": "Deleted recognized club: Google Developer Student Club (GDSC)"
+    },
+    {
+      "id": "log-1792415599758",
+      "action": "CLUB_DELETE",
+      "entity": "SRM Ramapuram Literary & Debating Society",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 6:43:19 pm",
+      "details": "Deleted recognized club: SRM Ramapuram Literary & Debating Society"
+    },
+    {
+      "id": "log-1792415597587",
+      "action": "CLUB_DELETE",
+      "entity": "Robotics and Automation Society",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 6:43:17 pm",
+      "details": "Deleted recognized club: Robotics and Automation Society"
+    },
+    {
+      "id": "log-1792415596037",
+      "action": "CLUB_DELETE",
+      "entity": "Computing & Coding Club (C3)",
+      "actor": "Administrator",
+      "timestamp": "19/10/2026, 6:43:16 pm",
+      "details": "Deleted recognized club: Computing & Coding Club (C3)"
+    },
     {
       "id": "log-1792414896732",
       "action": "CLUB_CREATE",
@@ -366,45 +421,6 @@
         "u-1792411608154-9k8nx"
       ],
       "created_at": "2026-10-19T13:01:36.732Z"
-    },
-    {
-      "id": "c1000000-0000-0000-0000-000000000001",
-      "name": "Computing & Coding Club (C3)",
-      "category": "Technical",
-      "description": "Official computer science and programming community organizing hackathons, open source initiatives, and tech talks.",
-      "logo_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300",
-      "contact_email": "c3club@srmist.edu.in",
-      "coordinator_ids": [
-        "u1000000-0000-0000-0000-000000000002"
-      ],
-      "created_at": "2026-10-19T12:25:59.249Z"
-    },
-    {
-      "id": "c1000000-0000-0000-0000-000000000002",
-      "name": "Robotics and Automation Society",
-      "category": "Technical",
-      "description": "Designing autonomous rovers, competitive combat bots, and IoT hardware projects for national competitions.",
-      "logo_url": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=300",
-      "contact_email": "robotics@srmist.edu.in",
-      "created_at": "2026-10-19T12:25:59.249Z"
-    },
-    {
-      "id": "c1000000-0000-0000-0000-000000000003",
-      "name": "SRM Ramapuram Literary & Debating Society",
-      "category": "Cultural",
-      "description": "Fostering public speaking, parliamentary debates, creative writing, and model United Nations.",
-      "logo_url": "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300",
-      "contact_email": "litdeb@srmist.edu.in",
-      "created_at": "2026-10-19T12:25:59.249Z"
-    },
-    {
-      "id": "c1000000-0000-0000-0000-000000000004",
-      "name": "Google Developer Student Club (GDSC)",
-      "category": "Technical",
-      "description": "Peer-to-peer learning environment for students interested in Google developer technologies, mobile dev, and cloud.",
-      "logo_url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300",
-      "contact_email": "gdsc@srmist.edu.in",
-      "created_at": "2026-10-19T12:25:59.249Z"
     }
   ]
 }
