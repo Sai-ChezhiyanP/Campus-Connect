@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  Info,
   MapPin,
   Maximize2,
   QrCode,
@@ -274,10 +275,15 @@ export default function EventDetailScreen() {
             </View>
           </View>
 
-          {/* Description */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>About This Event</Text>
-            <Text style={styles.description}>{event.description}</Text>
+          {/* About This Event Glass Card (Inside box matching Registration Capacity) */}
+          <View style={styles.glassAboutCard}>
+            <View style={styles.aboutHeader}>
+              <View style={styles.aboutTitleRow}>
+                <Info color="#38BDF8" size={16} />
+                <Text style={styles.aboutTitle}>About This Event</Text>
+              </View>
+            </View>
+            <Text style={styles.aboutDescription}>{event.description}</Text>
           </View>
 
           {/* Contact Information */}
@@ -701,17 +707,37 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontSize: 11,
   },
-  section: {
+  glassAboutCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.72)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.25)',
+    borderTopColor: 'rgba(56, 189, 248, 0.5)',
+    borderTopWidth: 1.5,
+    borderRadius: 18,
+    padding: 16,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  sectionTitle: {
+  aboutHeader: {
+    marginBottom: 10,
+  },
+  aboutTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  aboutTitle: {
     color: '#F8FAFC',
-    fontSize: 15,
-    fontWeight: '700',
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
-  description: {
-    color: '#94A3B8',
+  aboutDescription: {
+    color: '#CBD5E1',
     fontSize: 13,
     lineHeight: 22,
   },
