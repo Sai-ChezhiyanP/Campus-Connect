@@ -1,0 +1,29 @@
+{
+  "name": "campus-connect",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unified digital campus engagement platform for SRMIST Ramapuram",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:mobile": "npm --workspace=@campus-connect/mobile run start",
+    "dev:web": "npm --workspace=@campus-connect/web run dev",
+    "build:web": "npm --workspace=@campus-connect/web run build",
+    "build:packages": "npm --workspace=@campus-connect/types run build && npm --workspace=@campus-connect/validation run build && npm --workspace=@campus-connect/shared run build",
+    "lint": "npm run --workspaces --if-present lint",
+    "typecheck": "npm run --workspaces --if-present typecheck",
+    "test": "node --experimental-strip-types --test test/*.test.mjs"
+  },
+  "keywords": [
+    "campus",
+    "react-native",
+    "expo",
+    "nextjs",
+    "supabase",
+    "srmist"
+  ],
+  "author": "Campus Connect Engineering Team",
+  "license": "ISC"
+}
