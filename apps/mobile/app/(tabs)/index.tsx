@@ -94,7 +94,6 @@ export default function HomeScreen() {
     setCustomizeModalVisible(false);
   };
 
-  const hasManagementRole = currentUser.roles?.some((r) => r === 'admin' || r === 'faculty' || r === 'coordinator');
   const displayedEvents = activeCategory ? events.filter((e) => e.category === activeCategory) : events;
 
   return (
@@ -121,37 +120,7 @@ export default function HomeScreen() {
               <Text style={styles.userNameText}>{currentUser.full_name}</Text>
             </View>
           </View>
-
-          <TouchableOpacity
-            style={styles.glassFilterBtn}
-            onPress={() => setCustomizeModalVisible(true)}
-            activeOpacity={0.8}
-          >
-            <Sliders color="#38BDF8" size={18} />
-          </TouchableOpacity>
         </View>
-
-        {/* Management Access Card for privileged roles */}
-        {hasManagementRole && (
-          <TouchableOpacity
-            style={styles.managementGlassCard}
-            onPress={() => router.push('/management')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.managementLeft}>
-              <View style={styles.mgmtIconCircle}>
-                <Shield color="#F59E0B" size={18} />
-              </View>
-              <View>
-                <Text style={styles.managementTitle}>Campus Management Portal</Text>
-                <Text style={styles.managementSub}>
-                  Role: {currentUser.roles?.join(', ').toUpperCase()} • Create events & bulletins
-                </Text>
-              </View>
-            </View>
-            <ChevronRight color="#F59E0B" size={18} />
-          </TouchableOpacity>
-        )}
 
         {/* Custom Feed Filter Bar */}
         <View style={styles.customFilterContainer}>
