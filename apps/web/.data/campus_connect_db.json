@@ -305,6 +305,54 @@
   "registrations": [],
   "auditLogs": [
     {
+      "id": "log-1792484598973",
+      "action": "EVENT_DELETE",
+      "entity": "ABCD",
+      "actor": "Priya Raman (Test Coordinator)",
+      "timestamp": "20/10/2026, 1:53:18 pm",
+      "details": "Event ABCD deleted by Priya Raman (Test Coordinator)"
+    },
+    {
+      "id": "log-1792484593047",
+      "action": "EVENT_CANCELLED",
+      "entity": "ABCD",
+      "actor": "Administrator",
+      "timestamp": "20/10/2026, 1:53:13 pm",
+      "details": "Event ABCD status updated to cancelled • Reason: Event cancelled/disabled by coordinator/admin"
+    },
+    {
+      "id": "log-1792484587997",
+      "action": "EVENT_PUBLISHED",
+      "entity": "ABCD",
+      "actor": "Administrator",
+      "timestamp": "20/10/2026, 1:53:07 pm",
+      "details": "Event ABCD status updated to published"
+    },
+    {
+      "id": "log-1792484575332",
+      "action": "EVENT_CANCELLED",
+      "entity": "ABCD",
+      "actor": "Administrator",
+      "timestamp": "20/10/2026, 1:52:55 pm",
+      "details": "Event ABCD status updated to cancelled • Reason: Event cancelled/disabled by coordinator/admin"
+    },
+    {
+      "id": "log-1792484321711",
+      "action": "EVENT_PUBLISHED",
+      "entity": "ABCD",
+      "actor": "Administrator",
+      "timestamp": "20/10/2026, 1:48:41 pm",
+      "details": "Event ABCD status updated to published"
+    },
+    {
+      "id": "log-1792484286947",
+      "action": "EVENT_CREATE",
+      "entity": "ABCD",
+      "actor": "Priya Raman (Test Coordinator)",
+      "timestamp": "20/10/2026, 1:48:06 pm",
+      "details": "Event ABCD [Status: pending_approval]"
+    },
+    {
       "id": "log-1792425356835",
       "action": "EVENT_PUBLISHED",
       "entity": "💻 CODECRAFT – BUILD • CODE • SOLVE 🚀",
