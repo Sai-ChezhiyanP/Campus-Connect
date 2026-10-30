@@ -5,9 +5,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15-black?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Expo](https://img.shields.io/badge/Expo-51-000020?logo=expo&logoColor=white)](https://expo.dev/)
-[![React Native](https://img.shields.io/badge/React_Native-0.74-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Tests Passing](https://img.shields.io/badge/Tests-10%2F10%20Passing-brightgreen)](#testing--verification)
+[![Tests Passing](https://img.shields.io/badge/Tests-15%2F15%20Passing-brightgreen)](#testing--verification)
 
 Campus Connect replaces fragmented WhatsApp groups, paper noticeboards, and disconnected forms with a unified, role-based mobile and web ecosystem. It gives students personalized event discovery with algorithmic feed ranking, empowers club coordinators with scoped event management and mandatory poster uploads, and arms administrators with centralized club operations, role permissions, and audit logs.
 
@@ -16,25 +15,28 @@ Campus Connect replaces fragmented WhatsApp groups, paper noticeboards, and disc
 ## 🌟 Core Features
 
 ### 🏛️ Club Management & Operations (Admin)
-- **Full Club Lifecycle**: Administrators can create, edit, and delete student clubs, technical societies, and cultural organizations.
+- **Full Club Lifecycle**: Administrators can create, edit, and delete student clubs, technical societies, and cultural organizations with coordinator unlinking safeguards.
 - **Visual Branding**: Supports custom club logo uploads via FileReader with live preview and preset badge configurations.
 - **Coordinator Linkage**: Seamlessly link coordinator student accounts to specific clubs from either the Club Management console or the User Directory.
 
-### 🎯 Scoped Coordinator Permissions
+### 🎯 Scoped Coordinator Permissions & Bulletin Board
 - **Club-Specific Event Scoping**: Coordinators can **only submit and edit events belonging to their assigned club**. Other clubs' events are locked.
+- **Dedicated Coordinator Bulletin Board**: Scoped noticeboard (`/dashboard/coordinator-bulletin`) allowing coordinators to broadcast club notices while keeping administrative bulletins restricted.
+- **Event Lifecycle Controls**: Authorized coordinators and administrators can cancel, disable, or delete events with automatic audit trail logging.
 - **Unassigned Coordinator Safeguards**: Coordinators not yet linked to an official club receive guidance and are prevented from publishing until an administrator assigns them.
 - **Full Administrative Override**: Campus Administrators retain university-wide authority to review, approve, edit, and publish events for any department or club.
 
-### 🖼️ Mandatory Event Posters
-- **Quality Standard**: All events require an official event poster before publication or updating.
+### 🖼️ Mandatory A4 Portrait Event Posters
+- **Quality Standard**: All events enforce an official A4 portrait poster format (1:1.414 ratio) before publication or updating.
 - **Upload Flexibility**:
   - **Custom Image Upload**: Drag-and-drop or file selector supporting PNG, JPG, and WEBP up to 5MB with automated base64 generation.
   - **Curated Theme Presets**: Instant selection from curated high-res posters (Hackathons, AI/Data Science, Robotics, Cultural Fests, Sports Meets, Symposiums).
-- **Cross-Platform Visibility**: Posters automatically populate event hero cards across the web portal, live preview mode, mobile feeds, and registration passes.
+- **Cross-Platform Visibility & Interactive Modal**: Posters populate event hero cards across the web portal, live preview mode, mobile feeds, and registration passes, with tap-to-view full-screen portrait preview modals and fit modes on mobile.
 
 ### 📱 Student Mobile Experience (Expo & React Native)
 - **Smart Feed Engine**: Algorithmic event ranking tailored to student degree (`B.Tech`), academic department (CSE, ECE, IT, etc.), admission year, section, and followed clubs.
 - **Feed Customization**: Switch between **Smart** (algorithmic affinity), **Custom** (filtered by selected categories), and **All** feeds.
+- **Modern Glassmorphic UI**: High-fidelity dark mode with blurred glass cards, responsive layouts, and full poster preview modals.
 - **QR Entry Pass**: One-touch event registration generates a cryptographically unique `CC-PASS-XXXX` QR ticket with live attendee check-in.
 - **Universal Calendar Export**: Export registered events directly into Google Calendar or standard `.ics` (RFC 5545) format.
 
@@ -55,11 +57,12 @@ CampusConnect/
 ├── apps/
 │   ├── web/                     # Next.js 15 Management Portal (App Router, Tailwind CSS, Lucide Icons)
 │   │   ├── app/
-│   │   │   ├── api/             # REST Endpoints (clubs, events, registrations, announcements, state)
+│   │   │   ├── api/             # REST Endpoints (clubs, events, registrations, announcements, state, users)
 │   │   │   ├── dashboard/       # Role-protected management interfaces
 │   │   │   │   ├── clubs/       # Admin club CRUD & coordinator assignment
-│   │   │   │   ├── events/      # Event directory, edit modal & creator
+│   │   │   │   ├── events/      # Event directory, edit modal, delete/disable & creator
 │   │   │   │   ├── approvals/   # Admin review & approval queue
+│   │   │   │   ├── coordinator-bulletin/ # Club coordinator notice broadcasting
 │   │   │   │   ├── users/       # User directory & role management
 │   │   │   │   └── audit/       # Immutable security audit logs
 │   │   │   └── login/           # Fast role-switching & institutional auth
@@ -70,7 +73,7 @@ CampusConnect/
 │   └── mobile/                  # React Native Mobile App (Expo Router v3)
 │       ├── app/
 │       │   ├── (tabs)/          # Bottom tabs: Feed, Discover, Passes, Profile
-│       │   ├── events/[id].tsx  # Event detail, poster hero & registration
+│       │   ├── events/[id].tsx  # Event detail, poster hero, modal & registration
 │       │   └── login.tsx        # Student authentication & registration
 │       └── services/
 │           ├── store.ts         # Mobile state manager & background sync
@@ -98,8 +101,10 @@ CampusConnect/
 | **Add / Edit / Remove Clubs** | ❌ | ❌ | ❌ | ✅ |
 | **Submit New Events** | ❌ | ✅ (Assigned club) | ❌ | ✅ (All entities) |
 | **Edit Existing Events** | ❌ | ✅ (Assigned club) | ❌ | ✅ (All events) |
-| **Mandatory Poster Enforcement** | — | ✅ Required | — | ✅ Required |
+| **Cancel / Disable / Delete Events** | ❌ | ✅ (Assigned club) | ❌ | ✅ (All events) |
+| **Mandatory A4 Poster Enforcement** | — | ✅ Required | — | ✅ Required |
 | **Publish Faculty Bulletins** | ❌ | ❌ | ✅ | ✅ |
+| **Coordinator Bulletin Board** | ❌ | ✅ (Club notices) | ❌ | ✅ (All notices) |
 | **Approve / Reject Event Queue** | ❌ | ❌ | ❌ | ✅ |
 | **Assign Roles & Link Coordinators**| ❌ | ❌ | ❌ | ✅ |
 | **View Institutional Audit Logs** | ❌ | ❌ | ❌ | ✅ |
@@ -119,17 +124,23 @@ cd Campus-Connect
 npm install
 ```
 
+> **Windows / PowerShell Tip**: If your PowerShell execution policy blocks `.ps1` scripts, run commands using `npm.cmd` (e.g. `npm.cmd test`).
+
 ### 3. Launch the Web Management Portal
 ```bash
 # Starts Next.js dev server on http://localhost:3000
 npm --workspace=@campus-connect/web run dev
+
+# Or build and start production server:
+npm --workspace=@campus-connect/web run build
+npm --workspace=@campus-connect/web run start
 ```
 Open **[http://localhost:3000](http://localhost:3000)** in your browser. You can click on any pre-seeded persona on the login screen (Admin, Coordinator, Faculty, Student) for instant testing.
 
 ### 4. Launch the Mobile Application (Expo)
 ```bash
 # Starts Expo development server on http://localhost:8081
-npm --workspace=@campus-connect/mobile run dev
+npm --workspace=@campus-connect/mobile run start
 ```
 - **Web Preview**: Press `w` in the terminal to open the mobile web view.
 - **Physical Device**: Scan the terminal QR code using **Expo Go** on Android or iOS. Both devices should be connected to the same Wi-Fi network.
@@ -138,22 +149,28 @@ npm --workspace=@campus-connect/mobile run dev
 
 ## 🧪 Testing & Verification
 
-The repository includes comprehensive tests verifying institutional validation schemas, chronological constraints, coordinator-scoped permissions, and calendar generation:
+The repository includes a comprehensive native test suite verifying institutional validation schemas, chronological constraints, coordinator-scoped permissions, and calendar generation:
 
 ```bash
 npm test
 ```
 
-### Test Suite Coverage:
+### Test Suite Coverage (15/15 Passing):
 - ✔ 18 SRM Ramapuram B.Tech specializations initialized
 - ✔ Smart Feed scoring engine with user affinity and followed clubs
-- ✔ Mandatory notices cannot be suppressed or muted
-- ✔ RFC 5545 iCalendar (`.ics`) generation and Google Calendar URL formatting
-- ✔ SRM Registration Number normalization & validation (`RA2411003010001`)
-- ✔ Student email validation enforcing `@srmist.edu.in` institutional domain
-- ✔ Mandatory event poster validation
-- ✔ Event chronological validation (start date, end date, deadline)
-- ✔ Coordinator-scoped club permissions (coordinators restricted to their assigned club, admins unrestricted)
+- ✔ Mandatory and urgent notices cannot be suppressed
+- ✔ Universal RFC 5545 iCalendar (`.ics`) generation produces valid VCALENDAR payload
+- ✔ Google Calendar URL builder generates proper URL
+- ✔ SRM Registration Number Normalization & Validation (`RA2411003010001`)
+- ✔ Indian Phone Number Normalization (`+91` format)
+- ✔ Student Registration Schema enforces `@srmist.edu.in` institutional domain
+- ✔ Event Form Schema enforces chronological consistency and mandatory poster
+- ✔ Coordinator Scoped Permissions: Coordinators can only edit events belonging to their assigned club
+- ✔ Faculty Bulletin Permissions: Coordinators and students cannot broadcast bulletins; only Faculty and Admins are authorized
+- ✔ Event Deletion and Disabling Permissions: Admins and Club Coordinators
+- ✔ Coordinator Bulletin Permissions: Club notices allowed, general/exam bulletins blocked
+- ✔ One-tap Demo Login Resolution: Independent of profile array ordering
+- ✔ Student Event Creation Restriction: Students are strictly blocked from creating events
 
 ---
 
